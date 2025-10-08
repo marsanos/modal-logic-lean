@@ -2,16 +2,18 @@ import Modal.cpl.proof
 import Modal.modal.formula
 
 
+namespace Kripke
+
 open CPLSeq ModalFormula
 
 
--- α is the set of atomic propositions
-structure KripkeFrame where
+structure Frame where
   world : Type
   rel : world → world → Prop
 
-structure KripkeModel (α : Type) where
-  frame : KripkeFrame
+-- α is the set of atomic propositions
+structure Model (α : Type) where
+  frame : Frame
   val : frame.world → α → Prop
 
 
@@ -19,7 +21,7 @@ structure KripkeModel (α : Type) where
 variable {α : Type}
 
 -- Defines truth at a specific world w, that is m, w ⊨ φ.
-def world_sat (m : KripkeModel α) (w : m.frame.world) : ModalFormula α → Prop
+def world_sat (m : Model α) (w : m.frame.world) : ModalFormula α → Prop
   | .atom a   => m.val w a
   | .bot      => False
   | .impl φ ψ => world_sat m w φ → world_sat m w ψ
@@ -27,19 +29,19 @@ def world_sat (m : KripkeModel α) (w : m.frame.world) : ModalFormula α → Pro
   | .dia φ    => ∃ v, m.frame.rel w v ∧ world_sat m v φ
 
 -- Defines truth in an entire model m, that is m ⊨ φ.
-def model_sat (m : KripkeModel α) (φ : ModalFormula α) : Prop :=
+def model_sat (m : Model α) (φ : ModalFormula α) : Prop :=
   ∀ w, world_sat m w φ
 
 -- Defines truth in an entire model f, that is f ⊨ φ.
-def frame_sat (f : KripkeFrame) (φ : ModalFormula α) : Prop :=
+def frame_sat (f : Frame) (φ : ModalFormula α) : Prop :=
   ∀ val, model_sat ⟨f, val⟩ φ
 
 -- Defines truth in all possible models, that is ⊨ φ.
-def kripke_valid (φ : ModalFormula α) : Prop :=
-  ∀ (f : KripkeFrame), frame_sat f φ
+def valid (φ : ModalFormula α) : Prop :=
+  ∀ (f : Frame), frame_sat f φ
 
--- Notation
-notation m ", " w " ⊨ " φ => world_sat m w φ
-infix:45 " ⊨ " => model_sat
-infix:45 " ⊨ " => frame_sat
-prefix:45 "⊨ " => kripke_valid
+-- Defines truth in all frames satisfying a given class/property.
+def valid_in_class (P : Frame → Prop) (φ : ModalFormula α) : Prop :=
+  ∀ (f : Frame), P f → frame_sat f φ
+
+end Kripke

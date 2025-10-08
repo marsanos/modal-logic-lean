@@ -1,6 +1,6 @@
 import Modal.modal.formula
-import Modal.modal.kripke_model
-import Modal.modal.logic_K
+import Modal.modal.models.kripke
+import Modal.modal.logics.logic_K
 
 
 open ModalFormula
@@ -8,6 +8,7 @@ open ModalFormula
 
 variable {α : Type}
 
-theorem logic_K_sound_and_complete :
-    ∀ (φ : ModalFormula α), ⊨ φ ↔ KProof φ := by
-  sorry
+-- well-known result
+theorem logicK_kripke_sc :
+    ∀ (φ : ModalFormula α), Kripke.valid φ ↔ KProof φ := by
+    sorry

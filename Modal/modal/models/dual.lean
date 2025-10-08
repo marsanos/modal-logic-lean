@@ -2,21 +2,21 @@ import Modal.modal.formula
 import Modal.cpl.syntax
 
 
-namespace DualModel
+namespace Dual
 
 open ModalFormula CPLSyntax
 
 
 -- α is the set of atomic propositions
-structure DualFrame where
+structure Frame where
   n_world : Type
   p_world : Type
   rel : (n_world ⊕ p_world) → (n_world ⊕ p_world) → Prop
 
-abbrev DualFrame.world (F : DualFrame) := F.n_world ⊕ F.p_world
+abbrev Frame.world (F : Frame) := F.n_world ⊕ F.p_world
 
-structure DualModel (α : Type) where
-  frame : DualFrame
+structure Model (α : Type) where
+  frame : Frame
   val : frame.world → α → Prop
 
 
@@ -24,7 +24,7 @@ structure DualModel (α : Type) where
 variable {α : Type}
 
 -- Defines truth at a specific world w, that is m, w ⊨ φ.
-def world_sat (m : DualModel α) (w : m.frame.world) : ModalFormula α → Prop
+def world_sat (m : Model α) (w : m.frame.world) : ModalFormula α → Prop
   | .atom a => m.val w a
   | .bot => False
   | .impl φ ψ => world_sat m w φ → world_sat m w ψ
@@ -35,7 +35,24 @@ def world_sat (m : DualModel α) (w : m.frame.world) : ModalFormula α → Prop
     | .inl wn => ∃ v, (m.frame.rel (.inl wn) v) ∧ (world_sat m v φ)
     | .inr wp => ∀ v, (m.frame.rel (.inr wp) v) → (world_sat m v φ)
 
-theorem world_sat_neg {m : DualModel α} {w : m.frame.world} {φ : ModalFormula α} :
+-- Defines truth in an entire model m, that is m ⊨ φ.
+def model_sat (m : Model α) (φ : ModalFormula α) : Prop :=
+  ∀ w, world_sat m w φ
+
+-- Defines truth in an entire model f, that is f ⊨ φ.
+def frame_sat (f : Frame) (φ : ModalFormula α) : Prop :=
+  ∀ val, model_sat ⟨f, val⟩ φ
+
+-- Defines truth in all possible models, that is ⊨ φ.
+def valid (φ : ModalFormula α) : Prop :=
+  ∀ (f : Frame), frame_sat f φ
+
+-- Defines truth in all frames satisfying a given class/property.
+def valid_in_class (P : Frame → Prop) (φ : ModalFormula α) : Prop :=
+  ∀ (f : Frame), P f → frame_sat f φ
+
+
+theorem world_sat_neg {m : Model α} {w : m.frame.world} {φ : ModalFormula α} :
     world_sat m w (¬φ) ↔ ¬(world_sat m w φ) := by
   constructor
   · intro h hsat
@@ -43,12 +60,12 @@ theorem world_sat_neg {m : DualModel α} {w : m.frame.world} {φ : ModalFormula 
   · intro h hsat
     exact h hsat
 
-theorem world_sat_top {m : DualModel α} {w : m.frame.world} :
+theorem world_sat_top {m : Model α} {w : m.frame.world} :
     world_sat m w ⊤ := by
   unfold top neg
   simp [world_sat]
 
-theorem world_sat_or {m : DualModel α} {w : m.frame.world} {φ ψ : ModalFormula α} :
+theorem world_sat_or {m : Model α} {w : m.frame.world} {φ ψ : ModalFormula α} :
     world_sat m w (φ ∨ ψ) ↔ (world_sat m w φ ∨ world_sat m w ψ) := by
   unfold CPLSyntax.or CPLSyntax.neg
   simp [world_sat]
@@ -62,7 +79,7 @@ theorem world_sat_or {m : DualModel α} {w : m.frame.world} {φ ψ : ModalFormul
     | inl hp => contradiction
     | inr hq => exact hq
 
-theorem world_sat_and {m : DualModel α} {w : m.frame.world} {φ ψ : ModalFormula α} :
+theorem world_sat_and {m : Model α} {w : m.frame.world} {φ ψ : ModalFormula α} :
     world_sat m w (φ ∧ ψ) ↔ (world_sat m w φ ∧ world_sat m w ψ) := by
   unfold CPLSyntax.and CPLSyntax.neg
   simp only [world_sat]
@@ -93,7 +110,7 @@ theorem world_sat_and {m : DualModel α} {w : m.frame.world} {φ ψ : ModalFormu
     intro h_impl
     exact h_impl h_phi h_psi
 
-theorem world_sat_iff {m : DualModel α} {w : m.frame.world} {φ ψ : ModalFormula α} :
+theorem world_sat_iff {m : Model α} {w : m.frame.world} {φ ψ : ModalFormula α} :
     world_sat m w (φ ↔ ψ) ↔ (world_sat m w φ ↔ world_sat m w ψ) := by
   unfold CPLSyntax.iff
   -- φ ↔ ψ = (φ → ψ) ∧ (ψ → φ)
@@ -112,22 +129,5 @@ theorem world_sat_iff {m : DualModel α} {w : m.frame.world} {φ ψ : ModalFormu
     · exact h_iff.mp
     · exact h_iff.mpr
 
--- Defines truth in an entire model m, that is m ⊨ φ.
-def model_sat (m : DualModel α) (φ : ModalFormula α) : Prop :=
-  ∀ w, world_sat m w φ
 
--- Defines truth in an entire model f, that is f ⊨ φ.
-def frame_sat (f : DualFrame) (φ : ModalFormula α) : Prop :=
-  ∀ val, model_sat ⟨f, val⟩ φ
-
--- Defines truth in all possible models, that is ⊨ φ.
-def dual_valid (φ : ModalFormula α) : Prop :=
-  ∀ (f : DualFrame), frame_sat f φ
-
--- Notation
-notation m ", " w " ⊨ " f => world_sat m w f
-infix:45 " ⊨ " => model_sat
-infix:45 " ⊨ " => frame_sat
-prefix:45 "⊨ " => dual_valid
-
-end DualModel
+end Dual
