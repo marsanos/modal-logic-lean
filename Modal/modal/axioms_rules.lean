@@ -24,7 +24,7 @@ def ax_t (p : φ) : φ   := □p → p
 def ax_b (p : φ) : φ   := p → □(◇p)
 def ax_4 (p : φ) : φ   := □p → □(□p)
 def ax_5 (p : φ) : φ   := ◇p → □(◇p)
-def ax_m (p q : φ) : φ := □(p∧q) ↔ □p
+def ax_m (p q : φ) : φ := □(p∧q) → □p
 def ax_k (p q : φ) : φ := □(p → q) → (□p → □q)
 def ax_n : φ           := □⊤
 
