@@ -52,6 +52,10 @@ def valid_in_class (P : Frame → Prop) (φ : ModalFormula α) : Prop :=
   ∀ (f : Frame), P f → frame_sat f φ
 
 
+
+
+-- some derived results that may be useful later
+
 theorem world_sat_neg {m : Model α} {w : m.frame.world} {φ : ModalFormula α} :
     world_sat m w (¬φ) ↔ ¬(world_sat m w φ) := by
   constructor
