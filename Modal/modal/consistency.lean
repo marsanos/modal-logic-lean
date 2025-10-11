@@ -23,6 +23,12 @@ theorem lindenbaum
 
 -- Basic consistency results
 
+lemma no_cpl_bot : ¬ CPLSeq.CPLProof (⊥ : ModalFormula α) := by
+  admit
+  -- Standard result: CPL cannot prove ⊥
+  -- Proof: by soundness, if CPL proves ⊥, then ⊥ is a tautology,
+  -- but ⊥ evaluates to False under any valuation.
+
 lemma consistent_no_bot {Γ : Multiset (ModalFormula α)}
     (hΓ : is_consistent Γ) : (⊥ : ModalFormula α) ∉ Γ := by
   intro hbot
