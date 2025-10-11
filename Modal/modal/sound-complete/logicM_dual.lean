@@ -28,33 +28,6 @@ lemma cpl_valid (φ : ModalFormula α) (h : CPLSeq.CPLProof φ) : Dual.valid φ 
   unfold CPLMetatheorems.is_tautology at h_taut
   exact h_taut (world_as_valuation ⟨f, val⟩ w)
 
-lemma ax_dia_valid (φ : ModalFormula α) : Dual.valid (ax_dia φ) := by
-  intro f val w
-  unfold ax_dia
-  rw [world_sat_iff]
-  cases w with
-  | inl wn =>
-    -- At n-world: ◇p ↔ ∃v, R(wn,v) ∧ p@v
-    --             ¬□¬p ↔ ¬(∀v, R(wn,v) → ¬p@v) ↔ ∃v, R(wn,v) ∧ p@v
-    simp only [world_sat, world_sat_neg]
-    constructor
-    · intro ⟨v, hrel, hp⟩ hall
-      exact hall v hrel hp
-    · intro h
-      by_contra hneg
-      push_neg at hneg
-      exact h hneg
-  | inr wp =>
-    -- At p-world: ◇p ↔ ∀v, R(wp,v) → p@v
-    --             ¬□¬p ↔ ¬(∃v, R(wp,v) ∧ ¬p@v) ↔ ∀v, R(wp,v) → p@v
-    simp only [world_sat, world_sat_neg]
-    constructor
-    · intro hall ⟨v, hrel, hnp⟩
-      exact hnp (hall v hrel)
-    · intro h v hrel
-      by_contra hnp
-      exact h ⟨v, hrel, hnp⟩
-
 lemma ax_m_valid (φ ψ : ModalFormula α) : Dual.valid (ax_m φ ψ) := by
   intro f val w
   unfold ax_m world_sat
@@ -109,7 +82,6 @@ theorem logicM_dual_sound :
     intro φ hproof
     induction hproof with
     | cpl h_cpl => exact cpl_valid _ h_cpl
-    | ax_dia => exact ax_dia_valid _
     | ax_m => exact ax_m_valid _ _
     | rl_re h_prem ih => exact rl_re_valid _ _ ih
 
@@ -318,13 +290,8 @@ lemma truth_lemma
         · exact hrel
         · rw [ih_φ v]
           exact hφ_mem
-  | dia φ ih_φ =>
-    cases w with
-    | inl wn =>
-      sorry
-    | inr wp =>
-      sorry
   -- Blackburn et al. Lemma 4.21
+  -- Note: dia cases are not needed since ◇φ is defined as ¬□¬φ
 
 lemma deriv_iff_mem_mcs (φ : ModalFormula α) :
     MProof (α := α) φ ↔ ∀ {Γ : Multiset (ModalFormula α)},

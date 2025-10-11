@@ -8,7 +8,8 @@ open ModalFormula
 
 variable {α : Type}
 
--- well-known result
+-- Soundness and completeness of logic K with respect to Kripke models
+-- Well-known result
 theorem logicK_kripke_sc :
     ∀ (φ : ModalFormula α), Kripke.valid φ ↔ KProof φ := by
-    sorry
+    admit

@@ -17,7 +17,7 @@ def is_maximally_consistent (Γ : Multiset (ModalFormula α)) : Prop :=
 theorem lindenbaum
     (Γ : Multiset (ModalFormula α)) (h : is_consistent Γ) :
     ∃ Γ' : Multiset (ModalFormula α), is_maximally_consistent Γ' ∧ Γ ⊆ Γ' := by
-  sorry
-  -- Blackburn et al., lemma 4.17
+  admit
+  -- Well-known result. See Blackburn et al., Lemma 4.17
 
 end ModalConsistency

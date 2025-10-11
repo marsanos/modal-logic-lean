@@ -28,7 +28,6 @@ def world_sat (m : Model α) (w : m.frame.world) : ModalFormula α → Prop
   | .bot      => False
   | .impl φ ψ => world_sat m w φ → world_sat m w ψ
   | .box φ    => {v | world_sat m v φ} ∈ m.frame.nbhd w
-  | .dia φ    => {v | ¬world_sat m v φ} ∉ m.frame.nbhd w
 
 -- Defines truth in an entire model m, that is m ⊨ φ.
 def model_sat (m : Model α) (φ : ModalFormula α) : Prop :=

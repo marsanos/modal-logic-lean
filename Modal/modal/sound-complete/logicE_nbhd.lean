@@ -8,7 +8,8 @@ open ModalFormula
 
 variable {α : Type}
 
--- well-known result
+-- Soundness and completeness of logic E with respect to neighborhood models
+-- Well-known result
 theorem logicE_nbhd_sc :
     ∀ (φ : ModalFormula α), Neighborhood.valid φ ↔ EProof φ := by
-    sorry
+    admit

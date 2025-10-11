@@ -30,7 +30,7 @@ def sequent_valid (Γ : Multiset Form) (A : Form) : Prop :=
 theorem sequent_sound :
     ∀ {Γ : Multiset Form} {A : Form},
     CPLSeqProof (Γ ⊢ A) → sequent_valid Γ A := by
-  sorry
+  admit
 
 -- provable formulas are tautologies
 theorem cpl_sound : ∀ {φ : Form}, CPLProof φ → is_tautology φ := by

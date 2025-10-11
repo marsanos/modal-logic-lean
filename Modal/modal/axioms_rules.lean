@@ -19,7 +19,6 @@ namespace ModalAxioms
 
 variable {φ : Type} [ModalSyntax φ]
 
-def ax_dia (p : φ) : φ := ◇p ↔ ¬□¬p
 def ax_t (p : φ) : φ   := □p → p
 def ax_b (p : φ) : φ   := p → □(◇p)
 def ax_4 (p : φ) : φ   := □p → □(□p)

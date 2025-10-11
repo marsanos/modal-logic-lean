@@ -11,4 +11,3 @@ inductive EProof : ModalFormula α → Prop where
   | cpl {p : ModalFormula α} (h_cpl : CPLProof p) : EProof p
   | rl_re {p q : ModalFormula α} (h_prem : EProof (rl_re p q).premise) :
                                            EProof (rl_re p q).conclusion
-  | ax_dia {p : ModalFormula α} : EProof (ax_dia p)

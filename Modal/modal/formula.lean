@@ -13,13 +13,11 @@ inductive ModalFormula (α : Type) where
   | bot  : ModalFormula α
   | impl : ModalFormula α → ModalFormula α → ModalFormula α
   | box  : ModalFormula α → ModalFormula α
-  | dia  : ModalFormula α → ModalFormula α
 deriving DecidableEq
 
 instance (α : Type) : ModalSyntax (ModalFormula α) where
   bot  := ModalFormula.bot
   impl := ModalFormula.impl
   box  := ModalFormula.box
-  dia  := ModalFormula.dia
 
 end ModalFormula

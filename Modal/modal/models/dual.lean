@@ -31,9 +31,6 @@ def world_sat (m : Model α) (w : m.frame.world) : ModalFormula α → Prop
   | .box φ => match w with
     | .inl wn => ∀ v, (m.frame.rel (.inl wn) v) → world_sat m v φ
     | .inr wp => ∃ v, (m.frame.rel (.inr wp) v) ∧ (world_sat m v φ)
-  | .dia φ => match w with
-    | .inl wn => ∃ v, (m.frame.rel (.inl wn) v) ∧ (world_sat m v φ)
-    | .inr wp => ∀ v, (m.frame.rel (.inr wp) v) → (world_sat m v φ)
 
 -- Defines truth in an entire model m, that is m ⊨ φ.
 def model_sat (m : Model α) (φ : ModalFormula α) : Prop :=
