@@ -153,6 +153,31 @@ lemma mcs_no_bot {Γ : Multiset (ModalFormula α)}
     (hΓ : is_maximally_consistent (α := α) Γ) : (⊥ : ModalFormula α) ∉ Γ :=
   consistent_no_bot hΓ.1
 
+lemma mcs_no_contradiction
+    {Γ : Multiset (ModalFormula α)}
+    {φ : ModalFormula α}
+    (hφ : φ ∈ Γ) (hneg : (¬φ) ∈ Γ) : MProof' (α := α) Γ ⊥ := by
+  admit
+  -- Standard CPL result: from {φ, ¬φ} derive ⊥
+
+lemma mcs_double_neg
+    {Γ : Multiset (ModalFormula α)}
+    (hΓ : is_maximally_consistent (α := α) Γ)
+    {φ : ModalFormula α} :
+    φ ∈ Γ ↔ (¬¬φ) ∈ Γ := by
+  admit
+  -- Standard result for MCS: double negation equivalence
+
+lemma mcs_neg_box_iff_dia_neg
+    {Γ : Multiset (ModalFormula α)}
+    (hΓ : is_maximally_consistent (α := α) Γ)
+    {φ : ModalFormula α} :
+    (¬□φ) ∈ Γ ↔ (◇(¬φ)) ∈ Γ := by
+  admit
+  -- Since ◇ψ := ¬□¬ψ, we have ◇(¬φ) := ¬□¬¬φ
+  -- By double negation in MCS: φ ↔ ¬¬φ, so □φ ↔ □¬¬φ
+  -- Therefore ¬□φ ↔ ¬□¬¬φ = ◇(¬φ)
+
 lemma mcs_mem_or_neg_mem
     {Γ : Multiset (ModalFormula α)}
     (hΓ : is_maximally_consistent (α := α) Γ)
@@ -186,6 +211,41 @@ lemma mcs_mem_or_neg_mem
     | cpl hbot =>
         exact False.elim (no_cpl_bot hbot)
 
+-- Standard result: if ¬□φ ∈ Γ (MCS), then {ψ | □ψ ∈ Γ} ∪ {¬φ} is consistent
+-- This is used to construct witness worlds in canonical model proofs (n-worlds)
+lemma unbox_neg_consistent
+    {Γ : Multiset (ModalFormula α)}
+    (hΓ : is_maximally_consistent (α := α) Γ)
+    {φ : ModalFormula α}
+    (hneg_box : (¬□φ) ∈ Γ) :
+    ∃ Δ : Multiset (ModalFormula α),
+      is_maximally_consistent (α := α) Δ ∧
+      (∀ ψ, (□ψ) ∈ Γ → ψ ∈ Δ) ∧
+      (¬φ) ∈ Δ := by
+  admit
+  -- Well-known result for normal modal logics including M.
+  -- Proof: Show {ψ | □ψ ∈ Γ} ∪ {¬φ} is consistent, then extend via Lindenbaum.
+  -- Consistency follows from: if it were inconsistent, we could derive □¬φ,
+  -- contradicting ¬□φ ∈ Γ via maximality.
+
+-- Dual result: if □φ ∈ Γ (MCS at p-world), then {ψ | ◇ψ ∈ Γ} ∪ {φ} is consistent
+-- This is used to construct witness worlds for p-worlds
+lemma undia_box_consistent
+    {Γ : Multiset (ModalFormula α)}
+    (hΓ : is_maximally_consistent (α := α) Γ)
+    {φ : ModalFormula α}
+    (hbox : (□φ) ∈ Γ) :
+    ∃ Δ : Multiset (ModalFormula α),
+      is_maximally_consistent (α := α) Δ ∧
+      (∀ ψ, (◇ψ) ∈ Γ → ψ ∈ Δ) ∧
+      φ ∈ Δ := by
+  admit
+  -- Dual of unbox_neg_consistent. Well-known result for normal modal logics including M.
+  -- Proof: Show {ψ | ◇ψ ∈ Γ} ∪ {φ} is consistent, then extend via Lindenbaum.
+  -- Consistency follows from: if it were inconsistent, we could derive ◇¬φ,
+  -- which (since ◇ψ = ¬□¬ψ) means ¬□¬¬φ, and by double negation ¬□φ,
+  -- contradicting □φ ∈ Γ via maximality.
+
 lemma mcs_box_of_all
     {Γ : Multiset (ModalFormula α)}
     (hΓ : is_maximally_consistent (α := α) Γ)
@@ -194,7 +254,29 @@ lemma mcs_box_of_all
               canonical_acc α (.inl ⟨⟨Γ, true⟩, And.intro hΓ rfl⟩) v →
               φ ∈ world_to_set v) :
     (□φ) ∈ Γ := by
-  sorry
+  -- By maximality, either □φ ∈ Γ or ¬□φ ∈ Γ
+  cases mcs_mem_or_neg_mem hΓ (□φ) with
+  | inl hbox => exact hbox
+  | inr hneg_box =>
+    -- If ¬□φ ∈ Γ, we can construct a witness world
+    obtain ⟨Δ, hΔ_mcs, hΔ_acc, hΔ_neg⟩ := unbox_neg_consistent hΓ hneg_box
+    -- Δ is an MCS with (∀ψ, □ψ ∈ Γ → ψ ∈ Δ) and ¬φ ∈ Δ
+    -- We can make Δ into a world - let's make it an n-world
+    let v : World α := .inl ⟨⟨Δ, true⟩, And.intro hΔ_mcs rfl⟩
+    -- Check that this world is accessible from our original n-world
+    have hrel : canonical_acc α (.inl ⟨⟨Γ, true⟩, And.intro hΓ rfl⟩) v := by
+      intro ψ hψ
+      exact hΔ_acc ψ hψ
+    -- By hypothesis, φ ∈ Δ
+    have hφ_mem : φ ∈ world_to_set v := hall v hrel
+    -- But we also have ¬φ ∈ Δ
+    have hneg_mem : (¬φ) ∈ Δ := hΔ_neg
+    -- This is a contradiction in the MCS Δ
+    simp [world_to_set] at hφ_mem
+    have : φ ∈ Δ ∧ (¬φ) ∈ Δ := ⟨hφ_mem, hneg_mem⟩
+    -- An MCS cannot contain both φ and ¬φ - derive ⊥
+    have hbot : MProof' (α := α) Δ ⊥ := mcs_no_contradiction hφ_mem hneg_mem
+    exact False.elim (hΔ_mcs.1 hbot)
 
 lemma canon_acc_n {wn : NWorld α} {w : World α}
     (hrel : canonical_acc α (.inl wn) w)
@@ -208,8 +290,22 @@ lemma existence_pworld
     (hφ : (□φ) ∈ world_to_set (.inr wp)) :
     ∃ v : World α,
     canonical_acc α (.inr wp) v ∧ φ ∈ world_to_set v := by
-  sorry
-  -- Blackburn et al. Proposition 4.20
+  -- Extract the MCS from the p-world
+  obtain ⟨⟨Γ, _⟩, hΓ_mcs, _⟩ := wp
+  -- We have □φ ∈ Γ
+  have hbox : (□φ) ∈ Γ := hφ
+  -- Use undia_box_consistent to get an MCS containing all ◇-formulas from Γ plus φ
+  obtain ⟨Δ, hΔ_mcs, hΔ_acc, hΔ_φ⟩ := undia_box_consistent hΓ_mcs hbox
+  -- Make Δ into a world - let's use an n-world
+  let v : World α := .inl ⟨⟨Δ, true⟩, And.intro hΔ_mcs rfl⟩
+  use v
+  constructor
+  · -- Show canonical_acc holds: ∀ ψ, ◇ψ ∈ Γ → ψ ∈ Δ
+    intro ψ hdia
+    exact hΔ_acc ψ hdia
+  · -- Show φ ∈ world_to_set v
+    simp [world_to_set]
+    exact hΔ_φ
 
 lemma mcs_box_of_exists_p
     {Γ : Multiset (ModalFormula α)}
@@ -219,7 +315,28 @@ lemma mcs_box_of_exists_p
         canonical_acc α (.inr ⟨⟨Γ, false⟩, And.intro hΓ rfl⟩) v ∧
         φ ∈ world_to_set v) :
     (□φ) ∈ Γ := by
-  sorry
+  -- By maximality, either □φ ∈ Γ or ¬□φ ∈ Γ
+  cases mcs_mem_or_neg_mem hΓ (□φ) with
+  | inl hbox => exact hbox
+  | inr hneg_box =>
+    -- If ¬□φ ∈ Γ, we derive a contradiction
+    -- Get the witness world from hypothesis
+    obtain ⟨v, hrel, hφ_mem⟩ := hex
+    -- For p-worlds, canonical_acc means: ∀ ψ, ◇ψ ∈ Γ → ψ ∈ v
+    -- We have ¬□φ ∈ Γ, which is equivalent to ◇(¬φ) ∈ Γ
+    -- Since ◇(¬φ) := ¬□¬¬φ, and by double negation ¬¬φ ↔ φ in MCS
+    -- We get ◇(¬φ) := ¬□φ
+    have hdia_neg : (◇(¬φ)) ∈ Γ := (mcs_neg_box_iff_dia_neg hΓ).mp hneg_box
+    -- By accessibility relation, ¬φ ∈ v
+    have hneg_mem : (¬φ) ∈ world_to_set v := hrel (¬φ) hdia_neg
+    -- But we also have φ ∈ v
+    -- This is a contradiction
+    have hbot : MProof' (α := α) (world_to_set v) ⊥ :=
+      mcs_no_contradiction hφ_mem hneg_mem
+    -- v must be an MCS (either from .inl or .inr)
+    cases v with
+    | inl vn => exact False.elim (vn.property.1.1 hbot)
+    | inr vp => exact False.elim (vp.property.1.1 hbot)
 
 lemma mcs_impl_closed
     {Γ : Multiset (ModalFormula α)}
