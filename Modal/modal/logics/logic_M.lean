@@ -13,3 +13,11 @@ inductive MProof : ModalFormula α → Prop where
                                            MProof (rl_re p q).conclusion
   | ax_dia {p : ModalFormula α} : MProof (ax_dia p)
   | ax_m {p q : ModalFormula α} : MProof (ax_m p q)
+
+inductive MProof' (Γ : Multiset (ModalFormula α)) : ModalFormula α → Prop where
+  | assumption {p : ModalFormula α} (h : p ∈ Γ) : MProof' Γ p
+  | cpl {p : ModalFormula α} (h_cpl : CPLProof p) : MProof' Γ p
+  | rl_re {p q : ModalFormula α} (h_prem : MProof' Γ (rl_re p q).premise) :
+                                           MProof' Γ (rl_re p q).conclusion
+  | ax_dia {p : ModalFormula α} : MProof' Γ (ax_dia p)
+  | ax_m {p q : ModalFormula α} : MProof' Γ (ax_m p q)

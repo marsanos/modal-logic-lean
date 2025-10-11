@@ -7,13 +7,17 @@ open ModalFormula
 
 variable {α : Type}
 
--- A set of formulas is consistent with respect to MProof if we cannot derive
--- a contradiction from it
-def Consistent (Γ : Set (ModalFormula α)) : Prop :=
-  ¬∃ (φ : ModalFormula α), (∀ ψ ∈ Γ, MProof ψ) → MProof φ ∧ MProof (¬φ)
+def is_consistent (Γ : Multiset (ModalFormula α)) : Prop :=
+  ¬ MProof' (α:=α) Γ ⊥
 
--- A set is maximally consistent if it's consistent and no proper superset is consistent
-def MaximallyConsistent (Γ : Set (ModalFormula α)) : Prop :=
-  Consistent Γ ∧ ∀ φ, φ ∉ Γ → ¬Consistent (Γ ∪ {φ})
+def is_maximally_consistent (Γ : Multiset (ModalFormula α)) : Prop :=
+  is_consistent Γ ∧ ∀ φ, φ ∉ Γ → ¬is_consistent (φ ::ₘ Γ)
+
+-- Lindenbaum's Lemma: every consistent set extends to a maximally consistent set
+theorem lindenbaum
+    (Γ : Multiset (ModalFormula α)) (h : is_consistent Γ) :
+    ∃ Γ' : Multiset (ModalFormula α), is_maximally_consistent Γ' ∧ Γ ⊆ Γ' := by
+  sorry
+  -- Blackburn et al., lemma 4.17
 
 end ModalConsistency
