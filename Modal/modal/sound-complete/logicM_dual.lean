@@ -143,31 +143,7 @@ lemma no_cpl_bot : ¬ CPLSeq.CPLProof (⊥ : ModalFormula α) := by
   have hfalse := hvalid frame (fun _ _ => False) (Sum.inl ())
   simp [Dual.world_sat] at hfalse
 
-lemma consistent_no_bot {Γ : Multiset (ModalFormula α)}
-    (hΓ : is_consistent (α := α) Γ) : (⊥ : ModalFormula α) ∉ Γ := by
-  intro hbot
-  have : MProof' (α := α) Γ ⊥ := MProof'.assumption hbot
-  exact hΓ this
-
-lemma mcs_no_bot {Γ : Multiset (ModalFormula α)}
-    (hΓ : is_maximally_consistent (α := α) Γ) : (⊥ : ModalFormula α) ∉ Γ :=
-  consistent_no_bot hΓ.1
-
-lemma mcs_no_contradiction
-    {Γ : Multiset (ModalFormula α)}
-    {φ : ModalFormula α}
-    (hφ : φ ∈ Γ) (hneg : (¬φ) ∈ Γ) : MProof' (α := α) Γ ⊥ := by
-  admit
-  -- Standard CPL result: from {φ, ¬φ} derive ⊥
-
-lemma mcs_double_neg
-    {Γ : Multiset (ModalFormula α)}
-    (hΓ : is_maximally_consistent (α := α) Γ)
-    {φ : ModalFormula α} :
-    φ ∈ Γ ↔ (¬¬φ) ∈ Γ := by
-  admit
-  -- Standard result for MCS: double negation equivalence
-
+-- MCS lemma specific to the ◇ definition in our setting
 lemma mcs_neg_box_iff_dia_neg
     {Γ : Multiset (ModalFormula α)}
     (hΓ : is_maximally_consistent (α := α) Γ)
@@ -177,39 +153,6 @@ lemma mcs_neg_box_iff_dia_neg
   -- Since ◇ψ := ¬□¬ψ, we have ◇(¬φ) := ¬□¬¬φ
   -- By double negation in MCS: φ ↔ ¬¬φ, so □φ ↔ □¬¬φ
   -- Therefore ¬□φ ↔ ¬□¬¬φ = ◇(¬φ)
-
-lemma mcs_mem_or_neg_mem
-    {Γ : Multiset (ModalFormula α)}
-    (hΓ : is_maximally_consistent (α := α) Γ)
-    (φ : ModalFormula α) : φ ∈ Γ ∨ (¬φ) ∈ Γ := by
-  classical
-  by_cases hmem : φ ∈ Γ
-  · exact Or.inl hmem
-  · have h_incons : MProof' (α := α) (φ ::ₘ Γ) ⊥ := by
-      have hnot := hΓ.2 φ hmem
-      dsimp [is_consistent] at hnot
-      exact not_not.mp hnot
-    cases h_incons with
-    | assumption hbot_mem =>
-        obtain hcases | hbotΓ := Multiset.mem_cons.mp hbot_mem
-        · subst hcases
-          have : (¬(⊥ : ModalFormula α)) ∈ Γ := by
-            by_contra hnot
-            have hnincons : MProof' (α := α) ((¬(⊥ : ModalFormula α)) ::ₘ Γ) ⊥ := by
-              have hnotCons := hΓ.2 (¬(⊥ : ModalFormula α)) hnot
-              dsimp [is_consistent] at hnotCons
-              exact not_not.mp hnotCons
-            cases hnincons with
-            | assumption habs =>
-                obtain hcases' | hbotΓ' := Multiset.mem_cons.mp habs
-                · cases hcases'
-                · exact False.elim ((mcs_no_bot hΓ) hbotΓ')
-            | cpl hbot =>
-                exact False.elim (no_cpl_bot hbot)
-          exact Or.inr (by simpa using this)
-        · exact False.elim ((mcs_no_bot hΓ) hbotΓ)
-    | cpl hbot =>
-        exact False.elim (no_cpl_bot hbot)
 
 -- Standard result: if ¬□φ ∈ Γ (MCS), then {ψ | □ψ ∈ Γ} ∪ {¬φ} is consistent
 -- This is used to construct witness worlds in canonical model proofs (n-worlds)
@@ -332,18 +275,11 @@ lemma mcs_box_of_exists_p
     -- But we also have φ ∈ v
     -- This is a contradiction
     have hbot : MProof' (α := α) (world_to_set v) ⊥ :=
-      mcs_no_contradiction hφ_mem hneg_mem
+      ModalConsistency.mcs_no_contradiction hφ_mem hneg_mem
     -- v must be an MCS (either from .inl or .inr)
     cases v with
     | inl vn => exact False.elim (vn.property.1.1 hbot)
     | inr vp => exact False.elim (vp.property.1.1 hbot)
-
-lemma mcs_impl_closed
-    {Γ : Multiset (ModalFormula α)}
-    (hΓ : is_maximally_consistent (α := α) Γ)
-    {φ ψ : ModalFormula α} :
-    (φ → ψ) ∈ Γ ↔ (φ ∈ Γ → ψ ∈ Γ) := by
-  admit  -- known result, not dependent on my particular setting
 
 lemma truth_lemma
     (w : (CanonicalModel α).frame.world)
@@ -409,13 +345,6 @@ lemma truth_lemma
           exact hφ_mem
   -- Blackburn et al. Lemma 4.21
   -- Note: dia cases are not needed since ◇φ is defined as ¬□¬φ
-
-lemma deriv_iff_mem_mcs (φ : ModalFormula α) :
-    MProof (α := α) φ ↔ ∀ {Γ : Multiset (ModalFormula α)},
-                          is_maximally_consistent (α := α) Γ → φ ∈ Γ := by
-  admit
-  -- Well-known result for M and other logics.
-  -- See, for example, Chellas, Theorem 2.20 (2).
 
 lemma complete_wrt_canon :
     ∀ (φ : ModalFormula α), model_sat (CanonicalModel α) φ → MProof φ := by
