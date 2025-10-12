@@ -9,8 +9,8 @@ namespace ModalRules
 
 variable {φ : Type} [ModalSyntax φ]
 
-def rl_nec (p : φ) : InferenceRule1 φ  := ⟨p, □p⟩
-def rl_re (p q : φ) : InferenceRule1 φ := ⟨p ↔ q, □p ↔ □q⟩
+def rl_nec (p : φ) : InferenceRule φ  := ⟨p, □p⟩
+def rl_re (p q : φ) : InferenceRule φ := ⟨p ↔ q, □p ↔ □q⟩
 
 end ModalRules
 

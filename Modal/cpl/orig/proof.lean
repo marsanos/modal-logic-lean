@@ -1,13 +1,14 @@
-/- I do not care how the proof system is defined, as long
-as it satisfies the needed metatheorems. -/
+/- I do not care what the actual proof system is for CPL,
+as long as it satisfied the needed metatheorems. -/
 
 
 import Modal.cpl.syntax
+import Mathlib.Data.Multiset.Defs
 
-namespace CPL
+namespace CPLProof
 
-def CPLProof {Form : Type} [CPLSyntax Form] (A : Form) : Prop := by
-  admit
+def CPLProof {Form : Type} [CPLSyntax Form] (A : Form) : Prop :=
+  sorry
 
 
 variable {Form : Type} [CPLSyntax Form]
@@ -26,9 +27,11 @@ notation:50 v " ⊨ " φ => Valuation.eval v φ
 def is_tautology (φ : Form) : Prop :=
   ∀ (v : Valuation Form), v ⊨ φ
 
+def sequent_valid (Γ : Multiset Form) (A : Form) : Prop :=
+  ∀ (v : Valuation Form), (∀ B ∈ Γ, v ⊨ B) → v ⊨ A
+
 -- provable formulas are tautologies
--- The proof of this would depend on how the CPL proof system is defined.
 theorem cpl_sound : ∀ {φ : Form}, CPLProof φ → is_tautology φ := by
   admit
 
-end CPL
+end CPLProof

@@ -4,7 +4,7 @@ import Modal.modal.formula
 
 namespace Kripke
 
-open CPLSeq ModalFormula
+open CPL ModalFormula
 
 
 structure Frame where

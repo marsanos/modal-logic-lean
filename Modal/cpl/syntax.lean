@@ -1,17 +1,21 @@
 /- The type φ here represents formulas in a logic. Or, indeed, anything
-for which we want to define the given operators. -/
+for which we want to define the given operators.
 
-class CPLSyntax (φ : Type) where
-  impl : φ → φ → φ
-  bot : φ
+I use 𝓕 (backslash MCF) for the type of formulas...
+or whatever is amenable to be used in its stead. -/
+
+
+class CPLSyntax (𝓕 : Type) where
+  impl : 𝓕 → 𝓕 → 𝓕
+  bot : 𝓕
 
 namespace CPLSyntax
 
-def neg {φ : Type} [CPLSyntax φ] (p : φ)   : φ := impl p bot
-def top {φ : Type} [CPLSyntax φ]           : φ := neg bot
-def or  {φ : Type} [CPLSyntax φ] (p q : φ) : φ := impl (neg p) q
-def and {φ : Type} [CPLSyntax φ] (p q : φ) : φ := neg (impl p (neg q))
-def iff {φ : Type} [CPLSyntax φ] (p q : φ) : φ := and (impl p q) (impl q p)
+def neg {𝓕 : Type} [CPLSyntax 𝓕] (p : 𝓕)   : 𝓕 := impl p bot
+def top {𝓕 : Type} [CPLSyntax 𝓕]           : 𝓕 := neg bot
+def or  {𝓕 : Type} [CPLSyntax 𝓕] (p q : 𝓕) : 𝓕 := impl (neg p) q
+def and {𝓕 : Type} [CPLSyntax 𝓕] (p q : 𝓕) : 𝓕 := neg (impl p (neg q))
+def iff {𝓕 : Type} [CPLSyntax 𝓕] (p q : 𝓕) : 𝓕 := and (impl p q) (impl q p)
 
 
 notation  "⊥"   => bot

@@ -2,11 +2,9 @@ import Modal.modal.formula
 import Modal.modal.models.dual
 import Modal.modal.axioms_rules
 import Modal.modal.consistency
-import Modal.cpl.metatheorems
-import Modal.cpl.theorems
 
 
-open ModalFormula Dual ModalAxioms ModalRules ModalConsistency CPLTheorems
+open ModalFormula Dual ModalAxioms ModalRules ModalConsistency
 
 variable {α : Type}
 
@@ -14,7 +12,7 @@ section soundness
 
 -- each world contains a valuation - this function extracts it
 def world_as_valuation (m : Dual.Model α) (w : m.frame.world) :
-    CPLMetatheorems.Valuation (ModalFormula α) where
+    CPL.Valuation (ModalFormula α) where
   eval := world_sat m w
   eval_bot := rfl
   eval_impl _ _ := rfl
@@ -22,10 +20,10 @@ def world_as_valuation (m : Dual.Model α) (w : m.frame.world) :
 -- So that the proof is not too long, we prove some helper lemmas first.
 
 -- CPL tautologies are valid in dual models
-lemma cpl_valid (φ : ModalFormula α) (h : CPLSeq.CPLProof φ) : Dual.valid φ := by
+lemma cpl_valid (φ : ModalFormula α) (h : CPL.CPLProof φ) : Dual.valid φ := by
   intro f val w
-  have h_taut := CPLMetatheorems.cpl_sound h
-  unfold CPLMetatheorems.is_tautology at h_taut
+  have h_taut := CPL.cpl_sound h
+  unfold CPL.is_tautology at h_taut
   exact h_taut (world_as_valuation ⟨f, val⟩ w)
 
 lemma ax_m_valid (φ ψ : ModalFormula α) : Dual.valid (ax_m φ ψ) := by
@@ -133,7 +131,7 @@ def CanonicalModel (α : Type) : Dual.Model α where
 
 end canonical_model
 
-lemma no_cpl_bot : ¬ CPLSeq.CPLProof (⊥ : ModalFormula α) := by
+lemma no_cpl_bot : ¬ CPL.CPLProof (⊥ : ModalFormula α) := by
   intro h
   have hvalid := cpl_valid (α := α) (φ := (⊥ : ModalFormula α)) h
   let frame : Dual.Frame :=

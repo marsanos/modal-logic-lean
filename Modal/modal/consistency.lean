@@ -1,10 +1,11 @@
+import Modal.cpl.proof
 import Modal.modal.formula
 import Modal.modal.logics.logic_M
-import Modal.cpl.metatheorems
+
 
 namespace ModalConsistency
 
-open ModalFormula CPLMetatheorems
+open ModalFormula
 
 variable {α : Type}
 
@@ -23,7 +24,7 @@ theorem lindenbaum
 
 -- Basic consistency results
 
-lemma no_cpl_bot : ¬ CPLSeq.CPLProof (⊥ : ModalFormula α) := by
+lemma no_cpl_bot : ¬ CPL.CPLProof (⊥ : ModalFormula α) := by
   admit
   -- Standard result: CPL cannot prove ⊥
   -- Proof: by soundness, if CPL proves ⊥, then ⊥ is a tautology,

@@ -1,10 +1,11 @@
+import Mathlib.Data.Multiset.Basic
 import Modal.cpl.proof
 import Modal.modal.formula
 
 
 namespace Neighborhood
 
-open CPLSeq ModalFormula
+open CPL ModalFormula
 
 
 structure Frame where

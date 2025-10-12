@@ -3,7 +3,7 @@ import Modal.modal.formula
 import Modal.modal.axioms_rules
 
 
-open ModalAxioms ModalRules CPLSeq ModalFormula
+open ModalAxioms ModalRules CPL ModalFormula
 
 variable {α : Type} [ModalSyntax α]
 
