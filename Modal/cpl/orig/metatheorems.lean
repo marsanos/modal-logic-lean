@@ -4,16 +4,16 @@ import Modal.cpl.syntax
 
 namespace CPLMetatheorems
 
-open CPLSeq CPLSyntax
+open CPLSeq CPL.Syntax
 
 
-variable {Form : Type} [CPLSyntax Form]
+variable {Form : Type} [CPL.Syntax Form]
 
 -- A valuation is a function from formulas to propositions that respects
 -- the classical propositional connectives.
 -- So we need to say what the valuation function is, and prove
 -- that it respects ⊥ and → (the basic connectives).
-structure Valuation (Form : Type) [CPLSyntax Form] where
+structure Valuation (Form : Type) [CPL.Syntax Form] where
   eval : Form → Prop
   eval_bot : eval ⊥ = False
   eval_impl : ∀ φ ψ, eval (φ → ψ) = (eval φ → eval ψ)

@@ -5,7 +5,7 @@ open CPLSeq
 
 namespace CPLTheorems
 
-variable {Form : Type} [CPLSyntax Form]
+variable {Form : Type} [CPL.Syntax Form]
 
 theorem modus_ponens_prov {A B : Form} (hA : CPLProof A) (hAB : CPLProof (A → B)) : CPLProof B := by
   have h1 : CPLSeqProof (∅ ⊢ A) := hA

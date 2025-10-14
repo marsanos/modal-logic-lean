@@ -1,30 +1,31 @@
-/- The type φ is supposed to be the type of modal formulas,
+/- The type 𝓕 (backslash MCF) is supposed to be the type of modal formulas,
 but this works for anything with the appropriate syntax. -/
 
 
 import Modal.modal.syntax
 import Modal.common.inference
 
-namespace ModalRules
 
-variable {φ : Type} [ModalSyntax φ]
+namespace Modal.Rules
 
-def rl_nec (p : φ) : InferenceRule φ  := ⟨p, □p⟩
-def rl_re (p q : φ) : InferenceRule φ := ⟨p ↔ q, □p ↔ □q⟩
+variable {𝓕 : Type} [Modal.Syntax 𝓕]
 
-end ModalRules
+def rl_re (φ ψ : 𝓕) : InferenceRule 𝓕 := ⟨φ ↔ ψ, □φ ↔ □ψ⟩
+def rl_nec (φ : 𝓕)  : InferenceRule 𝓕 := ⟨φ, □φ⟩
+
+end Modal.Rules
 
 
-namespace ModalAxioms
+namespace Modal.Axioms
 
-variable {φ : Type} [ModalSyntax φ]
+variable {𝓕 : Type} [Modal.Syntax 𝓕]
 
-def ax_t (p : φ) : φ   := □p → p
-def ax_b (p : φ) : φ   := p → □(◇p)
-def ax_4 (p : φ) : φ   := □p → □(□p)
-def ax_5 (p : φ) : φ   := ◇p → □(◇p)
-def ax_m (p q : φ) : φ := □(p∧q) → □p
-def ax_k (p q : φ) : φ := □(p → q) → (□p → □q)
-def ax_n : φ           := □⊤
+def ax_m (φ ψ : 𝓕) : 𝓕 := □(φ∧ψ) → □φ
+def ax_k (φ ψ : 𝓕) : 𝓕 := □(φ → ψ) → (□φ → □ψ)
+def ax_n : 𝓕           := □⊤
+--def ax_t (φ : 𝓕) : 𝓕   := □φ → φ
+--def ax_4 (φ : 𝓕) : 𝓕   := □φ → □(□φ)
+--def ax_5 (φ : 𝓕) : 𝓕   := ◇φ → □(◇φ)
+--def ax_b (φ : 𝓕) : 𝓕   := φ → □(◇φ)
 
-end ModalAxioms
+end Modal.Axioms

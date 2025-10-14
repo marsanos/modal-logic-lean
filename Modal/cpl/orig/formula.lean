@@ -19,7 +19,7 @@ inductive CPLFormula (𝓐 : Type) where
   | impl : CPLFormula 𝓐 → CPLFormula 𝓐 → CPLFormula 𝓐
 deriving DecidableEq
 
-instance (𝓐 : Type) : CPLSyntax (CPLFormula 𝓐) where
+instance (𝓐 : Type) : CPL.Syntax (CPLFormula 𝓐) where
   bot  := CPLFormula.bot
   impl := CPLFormula.impl
 

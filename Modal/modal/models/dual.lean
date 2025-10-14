@@ -4,7 +4,7 @@ import Modal.cpl.syntax
 
 namespace Dual
 
-open ModalFormula CPLSyntax
+open CPL.Syntax
 
 
 -- α is the set of atomic propositions
@@ -24,7 +24,7 @@ structure Model (α : Type) where
 variable {α : Type}
 
 -- Defines truth at a specific world w, that is m, w ⊨ φ.
-def world_sat (m : Model α) (w : m.frame.world) : ModalFormula α → Prop
+def world_sat (m : Model α) (w : m.frame.world) : Modal.Formula α → Prop
   | .atom a => m.val w a
   | .bot => False
   | .impl φ ψ => world_sat m w φ → world_sat m w ψ
@@ -33,19 +33,19 @@ def world_sat (m : Model α) (w : m.frame.world) : ModalFormula α → Prop
     | .inr wp => ∃ v, (m.frame.rel (.inr wp) v) ∧ (world_sat m v φ)
 
 -- Defines truth in an entire model m, that is m ⊨ φ.
-def model_sat (m : Model α) (φ : ModalFormula α) : Prop :=
+def model_sat (m : Model α) (φ : Modal.Formula α) : Prop :=
   ∀ w, world_sat m w φ
 
 -- Defines truth in an entire model f, that is f ⊨ φ.
-def frame_sat (f : Frame) (φ : ModalFormula α) : Prop :=
+def frame_sat (f : Frame) (φ : Modal.Formula α) : Prop :=
   ∀ val, model_sat ⟨f, val⟩ φ
 
 -- Defines truth in all possible models, that is ⊨ φ.
-def valid (φ : ModalFormula α) : Prop :=
+def valid (φ : Modal.Formula α) : Prop :=
   ∀ (f : Frame), frame_sat f φ
 
 -- Defines truth in all frames satisfying a given class/property.
-def valid_in_class (P : Frame → Prop) (φ : ModalFormula α) : Prop :=
+def valid_in_class (P : Frame → Prop) (φ : Modal.Formula α) : Prop :=
   ∀ (f : Frame), P f → frame_sat f φ
 
 
@@ -53,7 +53,7 @@ def valid_in_class (P : Frame → Prop) (φ : ModalFormula α) : Prop :=
 
 -- some derived results that may be useful later
 
-theorem world_sat_neg {m : Model α} {w : m.frame.world} {φ : ModalFormula α} :
+theorem world_sat_neg {m : Model α} {w : m.frame.world} {φ : Modal.Formula α} :
     world_sat m w (¬φ) ↔ ¬(world_sat m w φ) := by
   constructor
   · intro h hsat
@@ -66,9 +66,9 @@ theorem world_sat_top {m : Model α} {w : m.frame.world} :
   unfold top neg
   simp [world_sat]
 
-theorem world_sat_or {m : Model α} {w : m.frame.world} {φ ψ : ModalFormula α} :
+theorem world_sat_or {m : Model α} {w : m.frame.world} {φ ψ : Modal.Formula α} :
     world_sat m w (φ ∨ ψ) ↔ (world_sat m w φ ∨ world_sat m w ψ) := by
-  unfold CPLSyntax.or CPLSyntax.neg
+  unfold CPL.Syntax.or neg
   simp [world_sat]
   constructor
   · intro h
@@ -80,9 +80,9 @@ theorem world_sat_or {m : Model α} {w : m.frame.world} {φ ψ : ModalFormula α
     | inl hp => contradiction
     | inr hq => exact hq
 
-theorem world_sat_and {m : Model α} {w : m.frame.world} {φ ψ : ModalFormula α} :
+theorem world_sat_and {m : Model α} {w : m.frame.world} {φ ψ : Modal.Formula α} :
     world_sat m w (φ ∧ ψ) ↔ (world_sat m w φ ∧ world_sat m w ψ) := by
-  unfold CPLSyntax.and CPLSyntax.neg
+  unfold CPL.Syntax.and neg
   simp only [world_sat]
   -- After unfolding: (world_sat m w φ → world_sat m w ψ → False) → False ↔ (world_sat m w φ ∧ world_sat m w ψ)
   constructor
@@ -111,9 +111,9 @@ theorem world_sat_and {m : Model α} {w : m.frame.world} {φ ψ : ModalFormula �
     intro h_impl
     exact h_impl h_phi h_psi
 
-theorem world_sat_iff {m : Model α} {w : m.frame.world} {φ ψ : ModalFormula α} :
+theorem world_sat_iff {m : Model α} {w : m.frame.world} {φ ψ : Modal.Formula α} :
     world_sat m w (φ ↔ ψ) ↔ (world_sat m w φ ↔ world_sat m w ψ) := by
-  unfold CPLSyntax.iff
+  unfold iff
   -- φ ↔ ψ = (φ → ψ) ∧ (ψ → φ)
   rw [world_sat_and]
   -- Now we have: world_sat m w (φ → ψ) ∧ world_sat m w (ψ → φ) ↔ (world_sat m w φ ↔ world_sat m w ψ)

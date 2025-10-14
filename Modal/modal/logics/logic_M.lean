@@ -4,19 +4,19 @@ import Modal.modal.formula
 import Modal.modal.axioms_rules
 
 
-open ModalAxioms ModalRules CPL ModalFormula
+open Modal.Axioms Modal.Rules
 
-variable {α : Type} [ModalSyntax α]
+variable {α : Type}
 
-inductive MProof : ModalFormula α → Prop where
-  | cpl {p : ModalFormula α} (h_cpl : CPLProof p) : MProof p
-  | rl_re {p q : ModalFormula α} (h_prem : MProof (rl_re p q).premise) :
-                                           MProof (rl_re p q).conclusion
-  | ax_m {p q : ModalFormula α} : MProof (ax_m p q)
+inductive MProof : Modal.Formula α → Prop where
+  | cpl {p : Modal.Formula α} (h_cpl : CPL.has_proof ∅ p) : MProof p
+  | rl_re {p q : Modal.Formula α} (h_prem : MProof (rl_re p q).premise) :
+                                            MProof (rl_re p q).conclusion
+  | ax_m {p q : Modal.Formula α} : MProof (ax_m p q)
 
-inductive MProof' (Γ : Multiset (ModalFormula α)) : ModalFormula α → Prop where
-  | assumption {p : ModalFormula α} (h : p ∈ Γ) : MProof' Γ p
-  | cpl {p : ModalFormula α} (h_cpl : CPLProof p) : MProof' Γ p
-  | rl_re {p q : ModalFormula α} (h_prem : MProof' Γ (rl_re p q).premise) :
-                                           MProof' Γ (rl_re p q).conclusion
-  | ax_m {p q : ModalFormula α} : MProof' Γ (ax_m p q)
+inductive MProof' (Γ : Multiset (Modal.Formula α)) : Modal.Formula α → Prop where
+  | assumption {p : Modal.Formula α} (h : p ∈ Γ) : MProof' Γ p
+  | cpl {p : Modal.Formula α} (h_cpl : CPL.has_proof ∅ p) : MProof' Γ p
+  | rl_re {p q : Modal.Formula α} (h_prem : MProof' Γ (rl_re p q).premise) :
+                                            MProof' Γ (rl_re p q).conclusion
+  | ax_m {p q : Modal.Formula α} : MProof' Γ (ax_m p q)

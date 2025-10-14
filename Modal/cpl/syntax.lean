@@ -5,17 +5,19 @@ I use 𝓕 (backslash MCF) for the type of formulas...
 or whatever is amenable to be used in its stead. -/
 
 
-class CPLSyntax (𝓕 : Type) where
+namespace CPL
+
+class Syntax (𝓕 : Type) where
   impl : 𝓕 → 𝓕 → 𝓕
   bot : 𝓕
 
-namespace CPLSyntax
+namespace Syntax
 
-def neg {𝓕 : Type} [CPLSyntax 𝓕] (p : 𝓕)   : 𝓕 := impl p bot
-def top {𝓕 : Type} [CPLSyntax 𝓕]           : 𝓕 := neg bot
-def or  {𝓕 : Type} [CPLSyntax 𝓕] (p q : 𝓕) : 𝓕 := impl (neg p) q
-def and {𝓕 : Type} [CPLSyntax 𝓕] (p q : 𝓕) : 𝓕 := neg (impl p (neg q))
-def iff {𝓕 : Type} [CPLSyntax 𝓕] (p q : 𝓕) : 𝓕 := and (impl p q) (impl q p)
+def neg {𝓕 : Type} [Syntax 𝓕] (p : 𝓕)   : 𝓕 := impl p bot
+def top {𝓕 : Type} [Syntax 𝓕]           : 𝓕 := neg bot
+def or  {𝓕 : Type} [Syntax 𝓕] (p q : 𝓕) : 𝓕 := impl (neg p) q
+def and {𝓕 : Type} [Syntax 𝓕] (p q : 𝓕) : 𝓕 := neg (impl p (neg q))
+def iff {𝓕 : Type} [Syntax 𝓕] (p q : 𝓕) : 𝓕 := and (impl p q) (impl q p)
 
 
 notation  "⊥"   => bot
@@ -28,4 +30,6 @@ infixl:20 " ↔ " => iff
 -- precedence levels: higher binds tighter
 -- 40 (¬), 35 (∧), 30 (∨), 20 (→, ↔)
 
-end CPLSyntax
+end Syntax
+
+end CPL

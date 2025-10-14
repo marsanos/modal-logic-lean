@@ -9,6 +9,7 @@ import Modal.cpl.proof
 
 -- Modal Logic
 import Modal.modal.syntax
+import Modal.modal.formula
 import Modal.modal.axioms_rules
 import Modal.modal.consistency
 

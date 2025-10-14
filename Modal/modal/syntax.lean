@@ -1,20 +1,23 @@
 /- We take box as primitive and define diamond as the usual `◇ = ¬□¬`.
 While some textbooks take both as primitive, defining diamond simplifies
-structural inductions and proofs. The symmetry in dual Kripke models is
+structural inductions and proofs. The symmetry in dual models is
 maintained through the semantics. -/
 
 import Modal.cpl.syntax
 
-class ModalSyntax (φ : Type) extends CPLSyntax φ where
+namespace Modal
+
+class Syntax (φ : Type) extends CPL.Syntax φ where
   box : φ → φ
 
-namespace ModalSyntax
+namespace Syntax
+
+def dia {φ : Type} [Syntax φ] (p : φ) : φ := ¬ box (¬p)
 
 prefix:40 "□" => box
+prefix:40 "◇" => dia
 -- same precedence as negation, larger than other Boolean connectives'
 
-def dia {φ : Type} [ModalSyntax φ] (p : φ) : φ := ¬□¬p
+end Syntax
 
-prefix:40 "◇" => dia
-
-end ModalSyntax
+end Modal
