@@ -1,16 +1,28 @@
-import Modal.cpl.proof
-import Modal.modal.formula
-import Modal.modal.axioms_rules
+import Modal.cpl.cpl
+import Modal.modal.common.formula
+import Modal.modal.common.axioms_rules
 
 
-open Modal.Axioms Modal.Rules
+open Modal
 
-variable {α : Type}
+variable {𝓐 : Type}
 
-inductive KProof : Modal.Formula α → Prop where
-  | classical {p : Modal.Formula α} (h : CPL.has_proof ∅ p) : KProof p
-  | rl_re {p q : Modal.Formula α} (h : KProof (rl_re p q).premise) :
-                                       KProof (rl_re p q).conclusion
-  | rl_nec {p : Modal.Formula α} (h : KProof (rl_nec p).premise) :
-                                      KProof (rl_nec p).conclusion
-  | ax_k {p q : Modal.Formula α} : KProof (ax_k p q)
+inductive KProof : Set (Formula 𝓐) → Formula 𝓐 → Prop where
+  | assumption {Γ : Set (Formula 𝓐)} {p : Formula 𝓐}
+      (h : p ∈ Γ) :
+      KProof Γ p
+  | cpl {Γ : Set (Formula 𝓐)} {φ : Formula 𝓐}
+      (h_cpl : (CPL.Entailment (Formula 𝓐)).entails ∅ ((to_cpl 𝓐) φ)) :
+      KProof Γ φ
+  | re {Γ : Set (Formula 𝓐)} {φ ψ : Formula 𝓐}
+      (h_prem : KProof Γ (Rules.re φ ψ).premise) :
+      KProof Γ (Rules.re φ ψ).conclusion
+  | nec {Γ : Set (Formula 𝓐)} {φ : Formula 𝓐}
+      (h_prem : KProof Γ (Rules.nec φ).premise) :
+      KProof Γ (Rules.nec φ).conclusion
+  | k {Γ : Set (Formula 𝓐)} {φ ψ : Formula 𝓐} :
+      KProof Γ (Axioms.k φ ψ)
+
+def KEntailment : EntailmentSystem :=
+  { formula := Formula 𝓐
+    entails := KProof }

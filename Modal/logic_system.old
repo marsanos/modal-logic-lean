@@ -1,0 +1,22 @@
+import Mathlib.Data.Set.Basic
+
+open Classical
+
+class LogicSystem (α : Type) where
+  is_derivable : Set α → α → Prop
+  is_sem_conseq : Set α → α → Prop
+
+namespace LogicSystem
+
+variable {α : Type} [LogicSystem α]
+
+def is_consistent [HasBot α] (T : Set α) : Prop :=
+  ¬ is_derivable T ⊥
+
+def is_sound : Prop :=
+  ∀ (T : Set α) (p : α), is_derivable T p → is_sem_conseq T p
+
+def is_complete : Prop :=
+  ∀ (T : Set α) (p : α), is_sem_conseq T p → is_derivable T p
+
+end LogicSystem

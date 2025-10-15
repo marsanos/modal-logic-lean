@@ -1,7 +1,4 @@
-/- The type φ here represents formulas in a logic. Or, indeed, anything
-for which we want to define the given operators.
-
-I use 𝓕 (backslash MCF) for the type of formulas...
+/- I use 𝓕 (backslash MCF) for the type of formulas...
 or whatever is amenable to be used in its stead. -/
 
 

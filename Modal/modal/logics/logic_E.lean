@@ -1,13 +1,23 @@
-import Modal.cpl.proof
-import Modal.modal.formula
-import Modal.modal.axioms_rules
+import Modal.cpl.cpl
+import Modal.modal.common.formula
+import Modal.modal.common.axioms_rules
 
 
-open Modal.Axioms Modal.Rules
+open Modal
 
-variable {α : Type}
+variable {𝓐 : Type}
 
-inductive EProof : Modal.Formula α → Prop where
-  | cpl {p : Modal.Formula α} (h_cpl : CPL.has_proof ∅ p) : EProof p
-  | rl_re {p q : Modal.Formula α} (h_prem : EProof (rl_re p q).premise) :
-                                            EProof (rl_re p q).conclusion
+inductive EProof : Set (Formula 𝓐) → Formula 𝓐 → Prop where
+  | assumption {Γ : Set (Formula 𝓐)} {p : Formula 𝓐}
+      (h : p ∈ Γ) :
+      EProof Γ p
+  | cpl {Γ : Set (Formula 𝓐)} {φ : Formula 𝓐}
+      (h_cpl : (CPL.Entailment (Formula 𝓐)).entails ∅ ((to_cpl 𝓐) φ)) :
+      EProof Γ φ
+  | re {Γ : Set (Formula 𝓐)} {φ ψ : Formula 𝓐}
+      (h_prem : EProof Γ (Rules.re φ ψ).premise) :
+      EProof Γ (Rules.re φ ψ).conclusion
+
+def EEntailment : EntailmentSystem :=
+  { formula := Formula 𝓐
+    entails := EProof }
