@@ -1,11 +1,3 @@
-/- So, why do we have a syntax definition and a formula definition?
-It... seems right. We could have several kinds of atoms, for instance,
-producing different kinds of formulas. When we get to modal logic,
-we may be interested in the product of two modal logics, and we will
-need different actual syntax for each.
-Also, in the definition of a logic system we need a type (not a class). -/
-
-
 import Modal.cpl.syntax
 import Modal.common.entailment
 
@@ -24,11 +16,5 @@ deriving DecidableEq
 instance (𝓐 : Type) : Syntax (Formula 𝓐) where
   bot  := Formula.bot
   impl := Formula.impl
-
-instance (𝓐 : Type) : HasBot (Formula 𝓐) where
-  bot := ⊥
-
-instance (𝓐 : Type) : HasNeg (Formula 𝓐) where
-  neg := fun φ => ¬ φ
 
 end CPL

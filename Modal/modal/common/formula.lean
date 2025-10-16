@@ -9,6 +9,8 @@ uncountable types are possible, e.g. 𝓐 = ℝ. -/
 
 
 import Modal.modal.common.syntax
+import Modal.common.syntax
+import Modal.cpl.syntax
 import Modal.cpl.formula
 import Modal.common.entailment
 
@@ -26,11 +28,14 @@ instance (𝓐 : Type) : Syntax (Formula 𝓐) where
   impl := Formula.impl
   box  := Formula.box
 
-instance (𝓐 : Type) : HasBot (Formula 𝓐) where
+instance (𝓐 : Type) : Common.Syntax.HasBot (Formula 𝓐) where
   bot := ⊥
 
-instance (𝓐 : Type) : HasNeg (Formula 𝓐) where
-  neg := fun φ => ¬ φ
+instance (𝓐 : Type) : CPL.Syntax.HasImpl (Formula 𝓐) where
+  impl := Formula.impl
+
+instance (𝓐 : Type) : CPL.Syntax.HasBox (Formula 𝓐) where
+  box := Formula.box
 
 end Modal
 

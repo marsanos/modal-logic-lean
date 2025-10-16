@@ -1,4 +1,4 @@
-import Modal.cpl.cpl
+import Modal.cpl.entailment
 import Modal.modal.common.formula
 import Modal.modal.common.axioms_rules
 
@@ -12,14 +12,10 @@ inductive MProof : Set (Formula 𝓐) → Formula 𝓐 → Prop where
       (h : p ∈ Γ) :
       MProof Γ p
   | cpl {Γ : Set (Formula 𝓐)} {φ : Formula 𝓐}
-      (h_cpl : (CPL.Entailment (Formula 𝓐)).entails ∅ ((to_cpl 𝓐) φ)) :
+      (h_cpl : (CPL.entails ∅ ((to_cpl 𝓐) φ))) :
       MProof Γ φ
   | re {Γ : Set (Formula 𝓐)} {φ ψ : Formula 𝓐}
       (h_prem : MProof Γ (Rules.re φ ψ).premise) :
       MProof Γ (Rules.re φ ψ).conclusion
   | m {Γ : Set (Formula 𝓐)} {φ ψ : Formula 𝓐} :
       MProof Γ (Axioms.m φ ψ)
-
-def MEntailment : EntailmentSystem :=
-  { formula := Formula 𝓐
-    entails := MProof }

@@ -4,14 +4,14 @@ that satisfies the needed metatheorems. -/
 
 import Modal.cpl.formula
 import Modal.common.entailment
+import Modal.common.modeling
 
 namespace CPL
 open Formula
 
-def Entailment (𝓐 : Type) : EntailmentSystem :=
-  { formula : Type := Formula 𝓐
-    entails : Set (Formula 𝓐) → Formula 𝓐 → Prop := by admit }
+variable {𝓐 : Type}
 
-instance (𝓐 : Type) : EntailmentSystem := Entailment 𝓐
+def models : Set (Formula 𝓐) → Formula 𝓐 → Prop := by admit
+instance : HasModels (Formula 𝓐) where models := models
 
 end CPL

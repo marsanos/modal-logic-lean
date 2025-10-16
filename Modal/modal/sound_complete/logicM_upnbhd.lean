@@ -1,15 +1,16 @@
-import Modal.modal.formula
-import Modal.modal.models.nbhd
+import Modal.modal.common.formula
+import Modal.modal.models.nbhd_new
 import Modal.modal.logics.logic_M
 
 
 open Neighborhood
 
 
-variable {α : Type}
+variable {𝓐 : Type}
 
 -- Soundness and completeness of logic M with respect to upward-closed neighborhood models
--- Well-known result - not specific to dual models
+-- Well-known result.
 theorem logicM_upnbhd_sc :
-    ∀ (φ : Modal.Formula α), valid_in_class IsUpwardClosed φ ↔ MProof φ := by
-    admit
+    ∀ (φ : Modal.Formula 𝓐), valid_in_class IsUpwardClosed φ
+      ↔ MProof (∅ : Set (Modal.Formula 𝓐)) φ := by
+  admit

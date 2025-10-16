@@ -1,6 +1,4 @@
-import Mathlib.Data.Multiset.Basic
-import Modal.cpl.proof
-import Modal.modal.formula
+import Modal.modal.common.formula
 
 
 namespace Neighborhood

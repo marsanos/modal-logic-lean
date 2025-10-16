@@ -1,4 +1,4 @@
-import Modal.cpl.cpl
+import Modal.cpl.entailment
 import Modal.modal.common.formula
 import Modal.modal.common.axioms_rules
 
@@ -12,7 +12,7 @@ inductive KProof : Set (Formula 𝓐) → Formula 𝓐 → Prop where
       (h : p ∈ Γ) :
       KProof Γ p
   | cpl {Γ : Set (Formula 𝓐)} {φ : Formula 𝓐}
-      (h_cpl : (CPL.Entailment (Formula 𝓐)).entails ∅ ((to_cpl 𝓐) φ)) :
+      (h_cpl : (CPL.entails ∅ ((to_cpl 𝓐) φ))) :
       KProof Γ φ
   | re {Γ : Set (Formula 𝓐)} {φ ψ : Formula 𝓐}
       (h_prem : KProof Γ (Rules.re φ ψ).premise) :
@@ -22,7 +22,3 @@ inductive KProof : Set (Formula 𝓐) → Formula 𝓐 → Prop where
       KProof Γ (Rules.nec φ).conclusion
   | k {Γ : Set (Formula 𝓐)} {φ ψ : Formula 𝓐} :
       KProof Γ (Axioms.k φ ψ)
-
-def KEntailment : EntailmentSystem :=
-  { formula := Formula 𝓐
-    entails := KProof }

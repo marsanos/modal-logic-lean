@@ -11,18 +11,9 @@ a logic but, then, what is a logic? -/
 import Mathlib.Data.Set.Basic
 
 
-class EntailmentSystem where
-  formula : Type
-  entails : Set formula → formula → Prop
-notation Γ " ⊢ " φ:50 => EntailmentSystem.entails Γ φ
+class HasEntails (𝓕 : Type) where
+  entails : Set 𝓕 → 𝓕 → Prop
+notation Γ " ⊢ " φ:50 => HasEntails.entails Γ φ
 
-class HasBot (𝓕 : Type) where
-  bot : 𝓕
-notation "⊥" => HasBot.bot
-
-class HasNeg (𝓕 : Type) where
-  neg : 𝓕 → 𝓕
-prefix:40 "¬" => HasNeg.neg
-
-def is_tauto {𝓔 : EntailmentSystem} (φ : 𝓔.formula) : Prop :=
-  ∅ ⊢ φ
+--def is_tauto {𝓕 : Type} (φ : 𝓕) [HasEntails 𝓕] : Prop :=
+--  ∅ ⊢ φ

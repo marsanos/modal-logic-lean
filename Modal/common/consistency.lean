@@ -1,21 +1,24 @@
 import Mathlib.Data.Set.Defs
 import Modal.common.entailment
+import Modal.common.syntax
 
 
 namespace Consistency
 
-variable {𝓔 : EntailmentSystem} [HasBot 𝓔.formula] [HasNeg 𝓔.formula]
+open Common.Syntax
 
-def is_consistent (Γ : Set 𝓔.formula) : Prop :=
+variable {𝓕 : Type} [HasEntails 𝓕] [HasBot 𝓕]
+
+def is_consistent (Γ : Set 𝓕) : Prop :=
   ¬ Γ ⊢ ⊥
 
 -- mcs = maximally consistent set
-def is_mcs (Γ : Set 𝓔.formula) : Prop :=
+def is_mcs (Γ : Set 𝓕) : Prop :=
   is_consistent Γ ∧ ∀ φ, φ ∉ Γ → ¬ is_consistent (Γ ∪ {φ})
 
 -- Lindenbaum's Lemma: every consistent set extends to a mcs
-theorem lindenbaum (Γ : Set 𝓔.formula) (h : is_consistent Γ) :
-    ∃ Γ' : Set 𝓔.formula, is_mcs Γ' ∧ Γ ⊆ Γ' := by
+theorem lindenbaum (Γ : Set 𝓕) (h : is_consistent Γ) :
+    ∃ Γ' : Set 𝓕, is_mcs Γ' ∧ Γ ⊆ Γ' := by
   admit
   -- Well-known result. See, for example, Blackburn et al., Lemma 4.17
 
