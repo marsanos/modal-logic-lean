@@ -1,12 +1,13 @@
 import Modal.cpl.entailment
 import Modal.modal.common.formula
-import Modal.modal.models.dual
+import Modal.modal.models.dual_new
 import Modal.modal.common.axioms_rules
 import Modal.common.consistency
 import Modal.modal.logics.logic_M
+import Modal.cpl.sound_complete
 
 
-open Dual Modal.Axioms Modal.Rules
+open Modal
 
 variable {𝓐 : Type}
 
@@ -24,77 +25,72 @@ section soundness
 -- CPL tautologies are valid in dual models
 lemma cpl_valid (φ : Modal.Formula 𝓐) (h : (CPL.entails ∅ (to_cpl 𝓐 φ))) : Dual.valid φ := by
   intro f val w
+  have h_taut := CPL.sound h
+  unfold CPL.complete at h_taut
+  let m : Dual.Model 𝓐 := { frame := f, val := val }
+  have h_models : CPL.models_set (world_as_valuation m w) ∅ := by
+    intro ψ hψ
+    cases hψ
+  have h_eval := h_taut (world_as_valuation m w) h_models
+  exact h_eval
 
-
-
-/-
---  intro f val w
---  have h_taut := CPL.cpl_sound_weak h
---  unfold CPL.semantic_consequence at h_taut
---  let m : Dual.Model 𝓐 := { frame := f, val := val }
---  have h_models : CPL.models_set (world_as_valuation m w) ∅ := by
---    intro ψ hψ
---    cases hψ
---  have h_eval := h_taut (world_as_valuation m w) h_models
---  exact h_eval
--/
-
-lemma ax_m_valid (φ ψ : Modal.Formula 𝓐) : Dual.valid (m φ ψ) := by
+lemma m_valid (φ ψ : Modal.Formula 𝓐) : Dual.valid (Modal.Axioms.m φ ψ) := by
   intro f val w
-  unfold m world_sat
+  unfold Dual.world_sat
   cases w with
   | inl wn =>
     -- At n-world: □(p∧q) → □p
     intro h v hrel
     have hpq := h v hrel
-    rw [world_sat_and] at hpq
+    rw [Dual.world_sat_and] at hpq
     exact hpq.1
   | inr wp =>
     -- At p-world: □(p∧q) → □p
     intro ⟨v, hrel, hpq⟩
-    rw [world_sat_and] at hpq
+    rw [Dual.world_sat_and] at hpq
     exact ⟨v, hrel, hpq.1⟩
 
-lemma rl_re_valid (φ ψ : Modal.Formula 𝓐) (h : Dual.valid (re φ ψ).premise) :
-    Dual.valid (re φ ψ).conclusion := by
+lemma re_valid (φ ψ : Modal.Formula 𝓐) (h : Dual.valid (Modal.Rules.re φ ψ).premise) :
+    Dual.valid (Modal.Rules.re φ ψ).conclusion := by
   intro f val w
-  rw [re]
-  rw [world_sat_iff]
+  rw [Modal.Rules.re]
+  rw [Dual.world_sat_iff]
   cases w with
   | inl wn =>
-    simp only [world_sat]
+    simp only [Dual.world_sat]
     constructor
     · intro hp_box v hrel
       have hiff := h f val v
-      rw [re] at hiff
-      rw [world_sat_iff] at hiff
+      rw [Modal.Rules.re] at hiff
+      rw [Dual.world_sat_iff] at hiff
       exact hiff.mp (hp_box v hrel)
     · intro hq_box v hrel
       have hiff := h f val v
-      rw [re] at hiff
-      rw [world_sat_iff] at hiff
+      rw [Modal.Rules.re] at hiff
+      rw [Dual.world_sat_iff] at hiff
       exact hiff.mpr (hq_box v hrel)
   | inr wp =>
-    simp only [world_sat]
+    simp only [Dual.world_sat]
     constructor
     · intro ⟨v, hrel, hp⟩
       have hiff := h f val v
-      rw [re] at hiff
-      rw [world_sat_iff] at hiff
+      rw [Modal.Rules.re] at hiff
+      rw [Dual.world_sat_iff] at hiff
       exact ⟨v, hrel, hiff.mp hp⟩
     · intro ⟨v, hrel, hq⟩
       have hiff := h f val v
-      rw [re] at hiff
-      rw [world_sat_iff] at hiff
+      rw [Modal.Rules.re] at hiff
+      rw [Dual.world_sat_iff] at hiff
       exact ⟨v, hrel, hiff.mpr hq⟩
 
 theorem logicM_dual_sound :
-    ∀ (φ : Modal.Formula 𝓐), MProof φ → valid φ := by
+    ∀ (φ : Modal.Formula 𝓐), MProof ∅ φ → Dual.valid φ := by
     intro φ hproof
     induction hproof with
+    | assumption h => cases h
     | cpl h_cpl => exact cpl_valid _ h_cpl
-    | ax_m => exact ax_m_valid _ _
-    | rl_re h_prem ih => exact rl_re_valid _ _ ih
+    | m => exact m_valid _ _
+    | re h_prem ih => exact re_valid _ _ ih
 
 end soundness
 
@@ -395,7 +391,7 @@ end completeness
 
 
 theorem logicM_dual_sc :
-    ∀ (φ : Modal.Formula 𝓐), valid φ ↔ MProof φ := by
+    ∀ (φ : Modal.Formula 𝓐), valid φ ↔ MProof ∅ φ := by
     intro φ
     constructor
     · exact logicM_dual_complete φ

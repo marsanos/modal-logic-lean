@@ -18,6 +18,11 @@ prefix:40 "□" => box
 prefix:40 "◇" => dia
 -- same precedence as negation, larger than other Boolean connectives'
 
+class HasBox (𝓕 : Type) where
+  box : 𝓕 → 𝓕
+
+instance {𝓕 : Type} [Syntax 𝓕] : Modal.Syntax.HasBox 𝓕 where box := Syntax.box
+
 end Syntax
 
 end Modal

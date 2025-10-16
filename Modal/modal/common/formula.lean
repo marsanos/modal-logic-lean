@@ -34,7 +34,7 @@ instance (𝓐 : Type) : Common.Syntax.HasBot (Formula 𝓐) where
 instance (𝓐 : Type) : CPL.Syntax.HasImpl (Formula 𝓐) where
   impl := Formula.impl
 
-instance (𝓐 : Type) : CPL.Syntax.HasBox (Formula 𝓐) where
+instance (𝓐 : Type) : Modal.Syntax.HasBox (Formula 𝓐) where
   box := Formula.box
 
 end Modal
@@ -49,6 +49,7 @@ Also, while □φ is considered an atom, the equivalent ¬◇¬φ is not,
 it is the negation of an atom. This is all OK. -/
 
 variable (𝓐 : Type)
+
 def to_cpl : Modal.Formula 𝓐 → CPL.Formula (Modal.Formula 𝓐)
   | Modal.Formula.atom α => CPL.Formula.atom (Modal.Formula.atom α)
   | Modal.Formula.bot => CPL.Formula.bot

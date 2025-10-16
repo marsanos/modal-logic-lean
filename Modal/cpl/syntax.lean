@@ -27,13 +27,12 @@ infixl:20 " ↔ " => iff
 -- precedence levels: higher binds tighter
 -- 40 (¬), 35 (∧), 30 (∨), 20 (→, ↔)
 
-instance {𝓕 : Type} [Syntax 𝓕] : Common.Syntax.HasBot 𝓕 where bot := Syntax.bot
 
 class HasImpl (𝓕 : Type) where
   impl : 𝓕 → 𝓕 → 𝓕
 
-class HasBox (𝓕 : Type) where
-  box : 𝓕 → 𝓕
+instance {𝓕 : Type} [Syntax 𝓕] : Common.Syntax.HasBot 𝓕 where bot := Syntax.bot
+instance {𝓕 : Type} [Syntax 𝓕] : CPL.Syntax.HasImpl 𝓕 where impl := Syntax.impl
 
 end Syntax
 
