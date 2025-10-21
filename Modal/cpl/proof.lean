@@ -9,10 +9,17 @@ def proof_system (Atom : Type) : Logic.ProofSystem :=
   { form := Formula Atom
     entails : Set (Formula Atom) → Formula Atom → Prop := by admit }
 
+
+structure Valuation (Form : Type) [Syntax Form] where
+  val : Form → Prop
+  h_val_bot : val ⊥ = False
+  h_val_impl : ∀ φ ψ, val (φ → ψ) = (val φ → val ψ)
+
 def semantics (Atom : Type) : Logic.Semantics :=
   { form := Formula Atom
-    model := by admit
-    satisfies := by admit }
+    model := Valuation (Formula Atom)
+    satisfies := fun v φ => v.val φ }
+
 
 theorem is_sound (Atom : Type) :
     Logic.is_sound (proof_system Atom) (semantics Atom) (by rfl) :=

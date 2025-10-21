@@ -1,5 +1,6 @@
 import Modal.modal.models.dual
 import Modal.modal.proof_systems.M_proof
+import Modal.cpl.proof
 
 
 namespace Modal.SoundComplete.M_Dual
@@ -9,101 +10,178 @@ open Modal.ProofSystems Modal.Models
 
 def all_frames : Dual.Frame → Prop := fun _ => True
 
-theorem is_sound (Atom : Type) :
-    Logic.is_sound (M.proof_system Atom) (@Dual.semantics Atom all_frames) (by rfl) :=
-  sorry
-
-theorem is_complete (Atom : Type) :
-     Logic.is_complete (M.proof_system Atom) (@Dual.semantics Atom all_frames) (by rfl) :=
-  sorry
-
-
---- --- ---
-
-
-variable {α : Type}
 
 section soundness
 
 -- each world contains a valuation - this function extracts it
-def world_as_valuation {Atom : Type} (m : Models.Dual.Model Atom) (w : m.frame.world) :
-    CPLMetatheorems.Valuation (ModalFormula α) where
-  eval := world_sat m w
-  eval_bot := rfl
-  eval_impl _ _ := rfl
+def world_as_valuation {Atom : Type} (m : Dual.Model Atom all_frames) (w : m.frame.world) :
+    CPL.Valuation (Modal.Formula Atom) where
+  val := Dual.world_sat m w
+  h_val_bot := rfl
+  h_val_impl _ _ := rfl
 
 -- So that the proof is not too long, we prove some helper lemmas first.
 
--- CPL tautologies are valid in dual models
-lemma cpl_valid (φ : ModalFormula α) (h : CPLSeq.CPLProof φ) : Dual.valid φ := by
-  intro f val w
-  have h_taut := CPLMetatheorems.cpl_sound h
-  unfold CPLMetatheorems.is_tautology at h_taut
-  exact h_taut (world_as_valuation ⟨f, val⟩ w)
+-- Helper function to evaluate CPL formulas where atoms are modal formulas
+def eval_cpl_with_modal_atoms {Atom : Type} (m : Dual.Model Atom all_frames) (w : m.frame.world) :
+    CPL.Formula (Modal.Formula Atom) → Prop
+  | CPL.Formula.atom modal_f => Dual.world_sat m w modal_f
+  | CPL.Formula.bot => False
+  | CPL.Formula.impl ψ1 ψ2 => (eval_cpl_with_modal_atoms m w ψ1 → eval_cpl_with_modal_atoms m w ψ2)
 
-lemma ax_m_valid (φ ψ : ModalFormula α) : Dual.valid (ax_m φ ψ) := by
-  intro f val w
-  unfold ax_m world_sat
+-- The CPL translation preserves semantics
+lemma to_cpl_preserves_sat {Atom : Type} (m : Dual.Model Atom all_frames)
+    (w : m.frame.world) (φ : Modal.Formula Atom) :
+    eval_cpl_with_modal_atoms m w (to_cpl φ) ↔ Dual.world_sat m w φ := by
+  induction φ with
+  | atom a =>
+    -- to_cpl (atom a) = CPL.atom (Modal.atom a)
+    simp [to_cpl, eval_cpl_with_modal_atoms]
+  | bot =>
+    -- to_cpl bot = CPL.bot
+    simp [to_cpl, eval_cpl_with_modal_atoms, Dual.world_sat]
+  | impl φ₁ φ₂ ih₁ ih₂ =>
+    -- to_cpl (φ₁ → φ₂) = CPL.impl (to_cpl φ₁) (to_cpl φ₂)
+    simp [to_cpl, eval_cpl_with_modal_atoms, Dual.world_sat]
+    constructor
+    · intro h hsat₁
+      apply ih₂.mp
+      apply h
+      exact ih₁.mpr hsat₁
+    · intro h heval₁
+      apply ih₂.mpr
+      apply h
+      exact ih₁.mp heval₁
+  | box φ ih =>
+    -- to_cpl (□φ) = CPL.atom (Modal.box φ)
+    simp [to_cpl, eval_cpl_with_modal_atoms]
+
+-- CPL tautologies are valid in dual models
+lemma cpl_is_valid {Atom : Type} (φ : Modal.Formula Atom)
+    (h : (CPL.proof_system (Modal.Formula Atom)).entails ∅ (to_cpl φ)) :
+    Dual.is_valid (fun _ => True) φ := by
+  intro m w
+  -- Create a CPL valuation for CPL formulas where atoms are modal formulas
+  let v : CPL.Valuation (CPL.Formula (Modal.Formula Atom)) := {
+    val := eval_cpl_with_modal_atoms m w
+    h_val_bot := rfl
+    h_val_impl := fun _ _ => rfl
+  }
+  have sound := CPL.is_sound (Modal.Formula Atom)
+  -- Apply soundness to get semantic consequence
+  have sem := sound ∅ (to_cpl φ) h
+  -- Unfold the definitions to see the structure
+  unfold Logic.is_sem_conseq at sem
+  -- Simplify with the fact that CPL.semantics has model = Valuation and satisfies = val
+  simp [CPL.semantics] at sem
+  -- Now sem : ∀ (M : CPL.Valuation (CPL.Formula (Formula Atom))), M.val (to_cpl φ)
+  have sat := sem v
+  -- sat : v.val (to_cpl φ), which is eval_cpl_with_modal_atoms m w (to_cpl φ)
+  -- Use the preservation lemma to relate CPL satisfaction to Modal satisfaction
+  exact (to_cpl_preserves_sat m w φ).mp sat
+
+lemma ax_m_is_valid {Atom : Type} (φ ψ : Modal.Formula Atom) :
+    Dual.is_valid (fun _ => True) (Axioms.m φ ψ) := by
+  intro m w
+  unfold Axioms.m
+  -- Goal: world_sat m w (□(φ ∧ ψ) → □φ)
+  simp [Dual.world_sat]
   cases w with
   | inl wn =>
-    -- At n-world: □(p∧q) → □p
+    -- At n-world: □(φ∧ψ) → □φ
     intro h v hrel
     have hpq := h v hrel
-    rw [world_sat_and] at hpq
+    -- hpq : world_sat m v (φ ∧ ψ)
+    -- ∧ is defined as ¬(φ → ¬ψ)
+    unfold CPL.Syntax.and CPL.Syntax.neg at hpq
+    simp [Dual.world_sat] at hpq
+    -- hpq should now be: ¬((world_sat m v φ → False) → False)
+    -- which simplifies to: world_sat m v φ ∧ world_sat m v ψ
     exact hpq.1
   | inr wp =>
-    -- At p-world: □(p∧q) → □p
+    -- At p-world: □(φ∧ψ) → □φ
     intro ⟨v, hrel, hpq⟩
-    rw [world_sat_and] at hpq
+    unfold CPL.Syntax.and CPL.Syntax.neg at hpq
+    simp [Dual.world_sat] at hpq
     exact ⟨v, hrel, hpq.1⟩
 
-lemma rl_re_valid (φ ψ : ModalFormula α) (h : Dual.valid (rl_re φ ψ).premise) :
-    Dual.valid (rl_re φ ψ).conclusion := by
-  intro f val w
-  rw [rl_re]
-  rw [world_sat_iff]
+-- Helper lemma that works with the induction hypothesis structure from is_sound
+lemma rl_re_is_valid {Atom : Type} {Γ : Set (Modal.Formula Atom)} (φ ψ : Modal.Formula Atom)
+    (ih : ∀ (model : Dual.Model Atom all_frames)
+            (_hΓ : ∀ ψ_Γ ∈ Set.image id Γ, Dual.model_sat model ψ_Γ),
+          Dual.model_sat model (φ ↔ ψ)) :
+    ∀ (model : Dual.Model Atom all_frames)
+      (_hΓ : ∀ ψ_Γ ∈ Set.image id Γ, Dual.model_sat model ψ_Γ),
+      Dual.model_sat model (□φ ↔ □ψ) := by
+  intro model hΓ w
+  simp only [CPL.Syntax.iff, CPL.Syntax.and, CPL.Syntax.neg, Dual.world_sat]
   cases w with
   | inl wn =>
-    simp only [world_sat]
-    constructor
-    · intro hp_box v hrel
-      have hiff := h f val v
-      rw [rl_re] at hiff
-      rw [world_sat_iff] at hiff
-      exact hiff.mp (hp_box v hrel)
-    · intro hq_box v hrel
-      have hiff := h f val v
-      rw [rl_re] at hiff
-      rw [world_sat_iff] at hiff
-      exact hiff.mpr (hq_box v hrel)
+    intro h_contra
+    apply h_contra
+    · -- Prove □φ → □ψ
+      intro h_box_phi v hrel
+      have hv := ih model hΓ v
+      have hphi := h_box_phi v hrel
+      by_contra h_not_psi
+      apply hv
+      intro h_fwd h_bwd
+      unfold Dual.world_sat at h_fwd
+      exact h_not_psi (h_fwd hphi)
+    · -- Prove □ψ → □φ
+      intro h_box_psi v hrel
+      have hv := ih model hΓ v
+      have hpsi := h_box_psi v hrel
+      by_contra h_not_phi
+      apply hv
+      intro h_fwd h_bwd
+      unfold Dual.world_sat at h_bwd
+      exact h_not_phi (h_bwd hpsi)
   | inr wp =>
-    simp only [world_sat]
-    constructor
-    · intro ⟨v, hrel, hp⟩
-      have hiff := h f val v
-      rw [rl_re] at hiff
-      rw [world_sat_iff] at hiff
-      exact ⟨v, hrel, hiff.mp hp⟩
-    · intro ⟨v, hrel, hq⟩
-      have hiff := h f val v
-      rw [rl_re] at hiff
-      rw [world_sat_iff] at hiff
-      exact ⟨v, hrel, hiff.mpr hq⟩
+    intro h_contra
+    apply h_contra
+    · -- Prove □φ → □ψ
+      intro ⟨v, hrel, hphi⟩
+      have hv := ih model hΓ v
+      use v, hrel
+      by_contra h_not_psi
+      apply hv
+      intro h_fwd h_bwd
+      unfold Dual.world_sat at h_fwd
+      exact h_not_psi (h_fwd hphi)
+    · -- Prove □ψ → □φ
+      intro ⟨v, hrel, hpsi⟩
+      have hv := ih model hΓ v
+      use v, hrel
+      by_contra h_not_phi
+      apply hv
+      intro h_fwd h_bwd
+      unfold Dual.world_sat at h_bwd
+      exact h_not_phi (h_bwd hpsi)
 
-theorem logicM_dual_sound :
-    ∀ (φ : ModalFormula α), MProof φ → valid φ := by
-    intro φ hproof
-    induction hproof with
-    | cpl h_cpl => exact cpl_valid _ h_cpl
-    | ax_m => exact ax_m_valid _ _
-    | rl_re h_prem ih => exact rl_re_valid _ _ ih
+theorem is_sound {Atom : Type} :
+    Logic.is_sound (M.proof_system Atom) (@Dual.semantics Atom all_frames) (by rfl) := by
+  intro Γ φ
+  -- Unfold the definition to see what we need to prove
+  change M.proof Γ φ → Logic.is_sem_conseq (@Dual.semantics Atom all_frames)
+                                           (Set.image id Γ) φ
+  intro hproof model hΓ
+  -- model : Dual.Model Atom all_frames
+  -- hΓ : ∀ ψ ∈ Set.image id Γ, Dual.model_sat model ψ
+  -- Goal: Dual.model_sat model φ
+  induction hproof generalizing model with
+  | assumption hmem => exact hΓ _ (Set.mem_image_of_mem id hmem)
+  | cpl h_cpl => exact cpl_is_valid _ h_cpl model
+  | m => exact ax_m_is_valid _ _ model
+  | re h_prem ih_prem => exact rl_re_is_valid _ _ ih_prem model hΓ
 
 end soundness
+
 
 section completeness
 
 section canonical_model
-
+/-
 abbrev NWorld (α : Type) :=
   {w : (Multiset (ModalFormula α)) × Bool //
     is_maximally_consistent w.1 ∧ w.2 = true}
@@ -143,9 +221,9 @@ def CanonicalModel (α : Type) : Dual.Model α where
   val w a := match w with
     | .inl wn => (ModalFormula.atom a) ∈ wn.val.1
     | .inr wp => (ModalFormula.atom a) ∈ wp.val.1
-
+-/
 end canonical_model
-
+/-
 lemma no_cpl_bot : ¬ CPLSeq.CPLProof (⊥ : ModalFormula α) := by
   intro h
   have hvalid := cpl_valid (α := α) (φ := (⊥ : ModalFormula α)) h
@@ -463,15 +541,23 @@ theorem logicM_dual_complete :
       (valid_canon_iff_valid (α := α) φ).mpr hvalid
     exact complete_wrt_canon (α := α) φ hmodel
 
+-/
+
+theorem is_complete (Atom : Type) :
+     Logic.is_complete (M.proof_system Atom) (@Dual.semantics Atom all_frames) (by rfl) :=
+  sorry
 
 end completeness
 
-
+/-
 theorem logicM_dual_sc :
     ∀ (φ : ModalFormula α), valid φ ↔ MProof φ := by
     intro φ
     constructor
     · exact logicM_dual_complete φ
     · exact logicM_dual_sound φ
+
+end Modal.SoundComplete.M_Dual
+-/
 
 end Modal.SoundComplete.M_Dual

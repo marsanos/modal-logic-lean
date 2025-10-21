@@ -5,7 +5,7 @@
   "c": "4090412765825844005"},
  "log":
  [{"message":
-   ".> LEAN_PATH=/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/Cli/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/batteries/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/Qq/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/aesop/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/proofwidgets/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/importGraph/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/plausible/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/mathlib/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/build/lib/lean /home/oscar/.elan/toolchains/leanprover--lean4---v4.24.0/bin/lean /home/oscar/projects/modal logic/Lean_val/Modal/Modal/modal/proof_systems/E_proof.lean -o /home/oscar/projects/modal logic/Lean_val/Modal/.lake/build/lib/lean/Modal/modal/proof_systems/E_proof.olean -i /home/oscar/projects/modal logic/Lean_val/Modal/.lake/build/lib/lean/Modal/modal/proof_systems/E_proof.ilean -c /home/oscar/projects/modal logic/Lean_val/Modal/.lake/build/ir/Modal/modal/proof_systems/E_proof.c --setup /home/oscar/projects/modal logic/Lean_val/Modal/.lake/build/ir/Modal/modal/proof_systems/E_proof.setup.json --json",
+   ".> LEAN_PATH=/home/oscar/projects/modal logic/Lean_val/.lake/packages/Cli/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/.lake/packages/batteries/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/.lake/packages/Qq/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/.lake/packages/aesop/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/.lake/packages/proofwidgets/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/.lake/packages/importGraph/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/.lake/packages/plausible/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/.lake/packages/mathlib/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/.lake/build/lib/lean /home/oscar/.elan/toolchains/leanprover--lean4---v4.24.0/bin/lean /home/oscar/projects/modal logic/Lean_val/Modal/modal/proof_systems/E_proof.lean -o /home/oscar/projects/modal logic/Lean_val/.lake/build/lib/lean/Modal/modal/proof_systems/E_proof.olean -i /home/oscar/projects/modal logic/Lean_val/.lake/build/lib/lean/Modal/modal/proof_systems/E_proof.ilean -c /home/oscar/projects/modal logic/Lean_val/.lake/build/ir/Modal/modal/proof_systems/E_proof.c --setup /home/oscar/projects/modal logic/Lean_val/.lake/build/ir/Modal/modal/proof_systems/E_proof.setup.json --json",
    "level": "trace"}],
  "inputs":
  [["Modal.modal.proof_systems.E_proof:deps",
@@ -13,7 +13,7 @@
      [["modal/Modal:extraDep", [["@modal:extraDep", "1723"]]],
       ["imports",
        [["Modal.cpl.proof transitive imports (legacy)", "6240359173654921920"],
-        ["Modal.cpl.proof:importAllArts", "13210780359065300691"],
+        ["Modal.cpl.proof:importAllArts", "180278030694412554"],
         ["Modal.modal.common.formula transitive imports (legacy)",
          "11728803140776638579"],
         ["Modal.modal.common.formula:importAllArts", "1528615648925416001"],
@@ -28,7 +28,7 @@
       ["module plugins", "1723"]]]]],
   ["Lean 4.24.0, commit 797c613eb9b6d4ec95db23e3e00af9ac6657f24b",
    "1165570713881806064"],
-  ["/home/oscar/projects/modal logic/Lean_val/Modal/Modal/modal/proof_systems/E_proof.lean",
+  ["/home/oscar/projects/modal logic/Lean_val/Modal/modal/proof_systems/E_proof.lean",
    "13348576031502814663"],
   ["options",
    [["-DmaxSynthPendingDepth=3", "14379489197236848084"],
@@ -37,4 +37,4 @@
     ["-Dpp.unicode.fun=true", "11210593074386665387"],
     ["-DautoImplicit=false", "5369888039164004816"]]],
   ["Module.leanArgs: #[]", "1723"]],
- "depHash": "5503592769428253181"}
+ "depHash": "5498678361816431058"}

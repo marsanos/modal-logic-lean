@@ -25,5 +25,5 @@ import Modal.modal.models.nbhd
 -- soundness and completeness results
 import Modal.modal.sound_complete.E_nbhd
 import Modal.modal.sound_complete.K_kripke
---import Modal.modal.sound_complete.M_dual
+import Modal.modal.sound_complete.M_dual
 import Modal.modal.sound_complete.M_upnbhd

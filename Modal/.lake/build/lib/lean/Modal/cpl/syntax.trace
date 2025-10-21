@@ -1,0 +1,31 @@
+{"synthetic": false,
+ "outputs":
+ {"o": ["743732011242597211"],
+  "i": "7150619928059594165",
+  "c": "11458673608063640356"},
+ "log":
+ [{"message":
+   ".> LEAN_PATH=/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/Cli/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/batteries/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/Qq/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/aesop/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/proofwidgets/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/importGraph/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/plausible/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/mathlib/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/build/lib/lean /home/oscar/.elan/toolchains/leanprover--lean4---v4.24.0/bin/lean /home/oscar/projects/modal logic/Lean_val/Modal/Modal/cpl/syntax.lean -o /home/oscar/projects/modal logic/Lean_val/Modal/.lake/build/lib/lean/Modal/cpl/syntax.olean -i /home/oscar/projects/modal logic/Lean_val/Modal/.lake/build/lib/lean/Modal/cpl/syntax.ilean -c /home/oscar/projects/modal logic/Lean_val/Modal/.lake/build/ir/Modal/cpl/syntax.c --setup /home/oscar/projects/modal logic/Lean_val/Modal/.lake/build/ir/Modal/cpl/syntax.setup.json --json",
+   "level": "trace"}],
+ "inputs":
+ [["Modal.cpl.syntax:deps",
+   [["deps",
+     [["modal/Modal:extraDep", [["@modal:extraDep", "1723"]]],
+      ["imports", "1723"]]],
+    ["libs",
+     [["import dynlibs", "1723"],
+      ["package external libraries", "1723"],
+      ["module dynlibs", "1723"],
+      ["module plugins", "1723"]]]]],
+  ["Lean 4.24.0, commit 797c613eb9b6d4ec95db23e3e00af9ac6657f24b",
+   "1165570713881806064"],
+  ["/home/oscar/projects/modal logic/Lean_val/Modal/Modal/cpl/syntax.lean",
+   "13679519616579620304"],
+  ["options",
+   [["-DmaxSynthPendingDepth=3", "14379489197236848084"],
+    ["-Dweak.linter.mathlibStandardSet=true", "9949955268809796418"],
+    ["-DrelaxedAutoImplicit=false", "8404479228809428608"],
+    ["-Dpp.unicode.fun=true", "11210593074386665387"],
+    ["-DautoImplicit=false", "5369888039164004816"]]],
+  ["Module.leanArgs: #[]", "1723"]],
+ "depHash": "5492207366617261566"}

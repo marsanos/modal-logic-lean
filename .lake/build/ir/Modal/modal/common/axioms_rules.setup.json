@@ -9,9 +9,9 @@
  "isModule": false,
  "importArts":
  {"Modal.modal.common.syntax":
-  ["/home/oscar/projects/modal logic/Lean_val/Modal/.lake/build/lib/lean/Modal/modal/common/syntax.olean"],
+  ["/home/oscar/projects/modal logic/Lean_val/.lake/build/lib/lean/Modal/modal/common/syntax.olean"],
   "Modal.cpl.syntax":
-  ["/home/oscar/projects/modal logic/Lean_val/Modal/.lake/build/lib/lean/Modal/cpl/syntax.olean"],
+  ["/home/oscar/projects/modal logic/Lean_val/.lake/build/lib/lean/Modal/cpl/syntax.olean"],
   "Modal.common.inference_rule":
-  ["/home/oscar/projects/modal logic/Lean_val/Modal/.lake/build/lib/lean/Modal/common/inference_rule.olean"]},
+  ["/home/oscar/projects/modal logic/Lean_val/.lake/build/lib/lean/Modal/common/inference_rule.olean"]},
  "dynlibs": []}

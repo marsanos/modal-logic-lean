@@ -5,7 +5,7 @@
   "c": "15461697266679136483"},
  "log":
  [{"message":
-   ".> LEAN_PATH=/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/Cli/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/batteries/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/Qq/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/aesop/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/proofwidgets/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/importGraph/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/plausible/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/packages/mathlib/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/Modal/.lake/build/lib/lean /home/oscar/.elan/toolchains/leanprover--lean4---v4.24.0/bin/lean /home/oscar/projects/modal logic/Lean_val/Modal/Modal/modal/sound_complete/K_kripke.lean -o /home/oscar/projects/modal logic/Lean_val/Modal/.lake/build/lib/lean/Modal/modal/sound_complete/K_kripke.olean -i /home/oscar/projects/modal logic/Lean_val/Modal/.lake/build/lib/lean/Modal/modal/sound_complete/K_kripke.ilean -c /home/oscar/projects/modal logic/Lean_val/Modal/.lake/build/ir/Modal/modal/sound_complete/K_kripke.c --setup /home/oscar/projects/modal logic/Lean_val/Modal/.lake/build/ir/Modal/modal/sound_complete/K_kripke.setup.json --json",
+   ".> LEAN_PATH=/home/oscar/projects/modal logic/Lean_val/.lake/packages/Cli/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/.lake/packages/batteries/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/.lake/packages/Qq/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/.lake/packages/aesop/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/.lake/packages/proofwidgets/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/.lake/packages/importGraph/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/.lake/packages/LeanSearchClient/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/.lake/packages/plausible/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/.lake/packages/mathlib/.lake/build/lib/lean:/home/oscar/projects/modal logic/Lean_val/.lake/build/lib/lean /home/oscar/.elan/toolchains/leanprover--lean4---v4.24.0/bin/lean /home/oscar/projects/modal logic/Lean_val/Modal/modal/sound_complete/K_kripke.lean -o /home/oscar/projects/modal logic/Lean_val/.lake/build/lib/lean/Modal/modal/sound_complete/K_kripke.olean -i /home/oscar/projects/modal logic/Lean_val/.lake/build/lib/lean/Modal/modal/sound_complete/K_kripke.ilean -c /home/oscar/projects/modal logic/Lean_val/.lake/build/ir/Modal/modal/sound_complete/K_kripke.c --setup /home/oscar/projects/modal logic/Lean_val/.lake/build/ir/Modal/modal/sound_complete/K_kripke.setup.json --json",
    "level": "trace"},
   {"message":
    "Modal/modal/sound_complete/K_kripke.lean:12:8: declaration uses 'sorry'",
@@ -22,7 +22,7 @@
          "10343891600964189743"],
         ["Modal.modal.models.kripke:importAllArts", "4173062282575052714"],
         ["Modal.modal.proof_systems.K_proof transitive imports (legacy)",
-         "913570850181327361"],
+         "9805499490411762792"],
         ["Modal.modal.proof_systems.K_proof:importAllArts",
          "7086392428592066728"]]]]],
     ["libs",
@@ -32,7 +32,7 @@
       ["module plugins", "1723"]]]]],
   ["Lean 4.24.0, commit 797c613eb9b6d4ec95db23e3e00af9ac6657f24b",
    "1165570713881806064"],
-  ["/home/oscar/projects/modal logic/Lean_val/Modal/Modal/modal/sound_complete/K_kripke.lean",
+  ["/home/oscar/projects/modal logic/Lean_val/Modal/modal/sound_complete/K_kripke.lean",
    "9244974379296295198"],
   ["options",
    [["-DmaxSynthPendingDepth=3", "14379489197236848084"],
@@ -41,4 +41,4 @@
     ["-Dpp.unicode.fun=true", "11210593074386665387"],
     ["-DautoImplicit=false", "5369888039164004816"]]],
   ["Module.leanArgs: #[]", "1723"]],
- "depHash": "15252244821781868928"}
+ "depHash": "9744586807804748366"}

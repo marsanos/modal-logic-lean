@@ -10,7 +10,7 @@ structure Frame where
 
 abbrev Frame.world (f : Frame) := f.n_world ⊕ f.p_world
 
-structure Model (Atom : Type)  (h_frame : Frame → Prop) where
+structure Model (Atom : Type) (h_frame : Frame → Prop) where
   frame : Frame
   h_frame : h_frame frame
   val : frame.world → Atom → Prop
@@ -36,6 +36,10 @@ instance semantics {Atom : Type} {h_frame : Frame → Prop} : Logic.Semantics :=
     model := Model Atom h_frame,
     satisfies := model_sat }
 
+-- Defines truth in all frames satisfying a given class/property.
+def is_valid {Atom : Type} (h_frame : Frame → Prop) (φ : Modal.Formula Atom) : Prop :=
+  ∀ (m : Model Atom h_frame), model_sat m φ
+
 end Modal.Models.Dual
 
 
@@ -47,9 +51,6 @@ end Modal.Models.Dual
 --def valid (φ : Modal.Formula Atom) : Prop :=
 --  ∀ (f : Frame), frame_sat f φ
 
--- Defines truth in all frames satisfying a given class/property.
---def valid_in_class (P : Frame → Prop) (φ : Modal.Formula Atom) : Prop :=
---  ∀ (f : Frame), P f → frame_sat f φ
 
 
 /-

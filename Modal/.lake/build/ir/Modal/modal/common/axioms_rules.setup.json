@@ -1,0 +1,17 @@
+{"plugins": [],
+ "options":
+ {"weak.linter.mathlibStandardSet": true,
+  "relaxedAutoImplicit": false,
+  "pp.unicode.fun": true,
+  "maxSynthPendingDepth": 3,
+  "autoImplicit": false},
+ "name": "Modal.modal.common.axioms_rules",
+ "isModule": false,
+ "importArts":
+ {"Modal.modal.common.syntax":
+  ["/home/oscar/projects/modal logic/Lean_val/Modal/.lake/build/lib/lean/Modal/modal/common/syntax.olean"],
+  "Modal.cpl.syntax":
+  ["/home/oscar/projects/modal logic/Lean_val/Modal/.lake/build/lib/lean/Modal/cpl/syntax.olean"],
+  "Modal.common.inference_rule":
+  ["/home/oscar/projects/modal logic/Lean_val/Modal/.lake/build/lib/lean/Modal/common/inference_rule.olean"]},
+ "dynlibs": []}

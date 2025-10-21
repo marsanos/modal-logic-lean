@@ -9,5 +9,5 @@
  "isModule": false,
  "importArts":
  {"Modal.cpl.syntax":
-  ["/home/oscar/projects/modal logic/Lean_val/Modal/.lake/build/lib/lean/Modal/cpl/syntax.olean"]},
+  ["/home/oscar/projects/modal logic/Lean_val/.lake/build/lib/lean/Modal/cpl/syntax.olean"]},
  "dynlibs": []}

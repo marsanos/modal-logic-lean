@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Modal
-// Imports: Init Modal.common.inference_rule Modal.common.logic Modal.cpl.formula Modal.cpl.proof Modal.cpl.syntax Modal.modal.common.axioms_rules Modal.modal.common.formula Modal.modal.common.syntax Modal.modal.proof_systems.K_proof Modal.modal.proof_systems.E_proof Modal.modal.proof_systems.M_proof Modal.modal.models.dual Modal.modal.models.kripke Modal.modal.models.nbhd Modal.modal.sound_complete.E_nbhd Modal.modal.sound_complete.K_kripke Modal.modal.sound_complete.M_upnbhd
+// Imports: Init Modal.common.inference_rule Modal.common.logic Modal.cpl.formula Modal.cpl.proof Modal.cpl.syntax Modal.modal.common.axioms_rules Modal.modal.common.formula Modal.modal.common.syntax Modal.modal.proof_systems.K_proof Modal.modal.proof_systems.E_proof Modal.modal.proof_systems.M_proof Modal.modal.models.dual Modal.modal.models.kripke Modal.modal.models.nbhd Modal.modal.sound_complete.E_nbhd Modal.modal.sound_complete.K_kripke Modal.modal.sound_complete.M_dual Modal.modal.sound_complete.M_upnbhd
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -30,6 +30,7 @@ lean_object* initialize_Modal_modal_models_kripke(uint8_t builtin, lean_object*)
 lean_object* initialize_Modal_modal_models_nbhd(uint8_t builtin, lean_object*);
 lean_object* initialize_Modal_modal_sound__complete_E__nbhd(uint8_t builtin, lean_object*);
 lean_object* initialize_Modal_modal_sound__complete_K__kripke(uint8_t builtin, lean_object*);
+lean_object* initialize_Modal_modal_sound__complete_M__dual(uint8_t builtin, lean_object*);
 lean_object* initialize_Modal_modal_sound__complete_M__upnbhd(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Modal(uint8_t builtin, lean_object* w) {
@@ -85,6 +86,9 @@ res = initialize_Modal_modal_sound__complete_E__nbhd(builtin, lean_io_mk_world()
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Modal_modal_sound__complete_K__kripke(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Modal_modal_sound__complete_M__dual(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Modal_modal_sound__complete_M__upnbhd(builtin, lean_io_mk_world());
