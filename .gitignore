@@ -1,0 +1,5 @@
+.lake/build/
+.lake/build/lib/
+.lake/build/ir/
+.lake/packages/
+Modal/.lake/packages/
