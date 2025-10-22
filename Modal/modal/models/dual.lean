@@ -10,15 +10,14 @@ structure Frame where
 
 abbrev Frame.world (f : Frame) := f.n_world ⊕ f.p_world
 
-structure Model (Atom : Type) (h_frame : Frame → Prop) where
+structure Model (Atom : Type) where
   frame : Frame
-  h_frame : h_frame frame
   val : frame.world → Atom → Prop
 
 
 -- Defines truth at a specific world w, that is m, w ⊨ φ.
-def world_sat {Atom : Type} {h_frame : Frame → Prop}
-   (m : Model Atom h_frame) (w : m.frame.world) : Modal.Formula Atom → Prop
+def world_sat {Atom : Type}
+   (m : Model Atom) (w : m.frame.world) : Modal.Formula Atom → Prop
   | .atom a => m.val w a
   | .bot => False
   | .impl φ ψ => world_sat m w φ → world_sat m w ψ
@@ -27,18 +26,18 @@ def world_sat {Atom : Type} {h_frame : Frame → Prop}
     | .inr wp => ∃ v, (m.frame.rel (.inr wp) v) ∧ (world_sat m v φ)
 
 -- Defines truth in an entire model m, that is m ⊨ φ.
-def model_sat {Atom : Type} {h_frame : Frame → Prop}
-    (m : Model Atom h_frame) (φ : Modal.Formula Atom) : Prop :=
+def model_sat {Atom : Type}
+    (m : Model Atom) (φ : Modal.Formula Atom) : Prop :=
   ∀ w, world_sat m w φ
 
-def semantics {Atom : Type} {h_frame : Frame → Prop} :
+def semantics {Atom : Type} :
     Logic.Semantics (Formula Atom) :=
-  { model := Model Atom h_frame,
+  { model := Model Atom,
     satisfies := model_sat }
 
 -- Defines truth in all frames satisfying a given class/property.
-def is_valid {Atom : Type} (h_frame : Frame → Prop) (φ : Modal.Formula Atom) : Prop :=
-  ∀ (m : Model Atom h_frame), model_sat m φ
+def is_valid {Atom : Type} (φ : Modal.Formula Atom) : Prop :=
+  ∀ (m : Model Atom), model_sat m φ
 
 end Modal.Models.Dual
 

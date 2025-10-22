@@ -8,29 +8,26 @@ namespace Modal.SoundComplete.M_Dual
 open Modal.ProofSystems Modal.Models
 
 
-def all_frames : Dual.Frame → Prop := fun _ => True
-
-
 section soundness
 
 -- each world contains a valuation - this function extracts it
-def world_as_valuation {Atom : Type} (m : Dual.Model Atom all_frames) (w : m.frame.world) :
-    CPL.Valuation (Modal.Formula Atom) where
-  val := Dual.world_sat m w
-  h_val_bot := rfl
-  h_val_impl _ _ := rfl
+--def world_as_valuation {Atom : Type} (m : Dual.Model Atom all_frames) (w : m.frame.world) :
+--    CPL.Valuation (Modal.Formula Atom) where
+--  val := Dual.world_sat m w
+--  h_val_bot := rfl
+--  h_val_impl _ _ := rfl
 
 -- So that the proof is not too long, we prove some helper lemmas first.
 
 -- Helper function to evaluate CPL formulas where atoms are modal formulas
-def eval_cpl_with_modal_atoms {Atom : Type} (m : Dual.Model Atom all_frames) (w : m.frame.world) :
+def eval_cpl_with_modal_atoms {Atom : Type} (m : Dual.Model Atom) (w : m.frame.world) :
     CPL.Formula (Modal.Formula Atom) → Prop
   | CPL.Formula.atom modal_f => Dual.world_sat m w modal_f
   | CPL.Formula.bot => False
   | CPL.Formula.impl ψ1 ψ2 => (eval_cpl_with_modal_atoms m w ψ1 → eval_cpl_with_modal_atoms m w ψ2)
 
 -- The CPL translation preserves semantics
-lemma to_cpl_preserves_sat {Atom : Type} (m : Dual.Model Atom all_frames)
+lemma to_cpl_preserves_sat {Atom : Type} (m : Dual.Model Atom)
     (w : m.frame.world) (φ : Modal.Formula Atom) :
     eval_cpl_with_modal_atoms m w (to_cpl φ) ↔ Dual.world_sat m w φ := by
   induction φ with
@@ -59,7 +56,7 @@ lemma to_cpl_preserves_sat {Atom : Type} (m : Dual.Model Atom all_frames)
 -- CPL tautologies are valid in dual models
 lemma cpl_is_valid {Atom : Type} (φ : Modal.Formula Atom)
     (h : (CPL.proof_system (Modal.Formula Atom)).entails ∅ (to_cpl φ)) :
-    Dual.is_valid (fun _ => True) φ := by
+    Dual.is_valid φ := by
   intro m w
   -- Define a CPL valuation for the current world
   let v : CPL.Valuation (CPL.Formula (Modal.Formula Atom)) := {
@@ -77,7 +74,7 @@ lemma cpl_is_valid {Atom : Type} (φ : Modal.Formula Atom)
   exact (to_cpl_preserves_sat m w φ).mp sat
 
 lemma ax_m_is_valid {Atom : Type} (φ ψ : Modal.Formula Atom) :
-    Dual.is_valid (fun _ => True) (Axioms.m φ ψ) := by
+    Dual.is_valid (Axioms.m φ ψ) := by
   intro m w
   unfold Axioms.m
   -- Goal: world_sat m w (□(φ ∧ ψ) → □φ)
@@ -103,10 +100,10 @@ lemma ax_m_is_valid {Atom : Type} (φ ψ : Modal.Formula Atom) :
 
 -- Helper lemma that works with the induction hypothesis structure from is_sound
 lemma rl_re_is_valid {Atom : Type} {Γ : Set (Modal.Formula Atom)} (φ ψ : Modal.Formula Atom)
-    (ih : ∀ (model : Dual.Model Atom all_frames)
+    (ih : ∀ (model : Dual.Model Atom)
             (_hΓ : ∀ ψ_Γ ∈ Γ, Dual.model_sat model ψ_Γ),
           Dual.model_sat model (φ ↔ ψ)) :
-    ∀ (model : Dual.Model Atom all_frames)
+    ∀ (model : Dual.Model Atom)
       (_hΓ : ∀ ψ_Γ ∈ Γ, Dual.model_sat model ψ_Γ),
       Dual.model_sat model (□φ ↔ □ψ) := by
   intro model hΓ w
@@ -156,7 +153,7 @@ lemma rl_re_is_valid {Atom : Type} {Γ : Set (Modal.Formula Atom)} (φ ψ : Moda
       exact h_not_phi (h_bwd hpsi)
 
 theorem is_sound {Atom : Type} :
-  Logic.is_sound_strong (M.proof_system Atom) (@Dual.semantics Atom all_frames) := by
+  Logic.is_sound_strong (M.proof_system Atom) Dual.semantics := by
   intro Γ φ
   -- Unfold the definition to see what we need to prove
   change M.proof Γ φ → Logic.Semantics.is_sem_conseq (Dual.semantics (Atom := Atom)) Γ φ
@@ -539,7 +536,7 @@ theorem logicM_dual_complete :
 -/
 
 theorem is_complete (Atom : Type) :
-    Logic.is_complete_strong (M.proof_system Atom) (@Dual.semantics Atom all_frames) :=
+    Logic.is_complete_strong (M.proof_system Atom) Dual.semantics :=
   sorry
 
 end completeness

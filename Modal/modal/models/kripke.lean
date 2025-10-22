@@ -7,25 +7,6 @@ structure Frame where
   world : Type
   rel : world → world → Prop
 
-namespace FramePpty
--- Common frame properties (conditions on accessibility relations)
--- When we need a particular type of frame, we can write
--- def ReflexiveFrame := { f : Frame // f.reflexive }
--- or
--- def S4_frame (f : Frame) : Prop := f.reflexive ∧ f.transitive
--- etc.
-def reflexive (f : Frame) : Prop :=
-  ∀ w : f.world, f.rel w w
-def symmetric (f : Frame) : Prop :=
-  ∀ w v : f.world, f.rel w v → f.rel v w
-def transitive (f : Frame) : Prop :=
-  ∀ w v u : f.world, f.rel w v → f.rel v u → f.rel w u
-def euclidean (f : Frame) : Prop :=
-  ∀ w v u : f.world, f.rel w v → f.rel w u → f.rel v u
-def serial (f : Frame) : Prop :=
-  ∀ w : f.world, ∃ v : f.world, f.rel w v
-end FramePpty
-
 structure Model (Atom : Type) where
   frame : Frame
   val : frame.world → Atom → Prop

@@ -7,28 +7,25 @@ structure Frame where
   world : Type
   nbhd : world → Set (Set world)
 
-structure Model (Atom : Type) (h_frame : Frame → Prop) where
+structure Model (Atom : Type) where
   frame : Frame
-  h_frame : h_frame frame
   val : frame.world → Atom → Prop
 
 
 -- Defines truth at a specific world w, that is m, w ⊨ φ.
-def world_sat {Atom : Type} {h_frame : Frame → Prop}
-    (m : Model Atom h_frame) (w : m.frame.world) : Modal.Formula Atom → Prop
+def world_sat {Atom : Type} (m : Model Atom) (w : m.frame.world) :
+    Modal.Formula Atom → Prop
   | .atom a   => m.val w a
   | .bot      => False
   | .impl φ ψ => world_sat m w φ → world_sat m w ψ
   | .box φ    => {v | world_sat m v φ} ∈ m.frame.nbhd w
 
 -- Defines truth in an entire model m, that is m ⊨ φ.
-def model_sat {Atom : Type} {h_frame : Frame → Prop}
-    (m : Model Atom h_frame) (φ : Modal.Formula Atom) : Prop :=
+def model_sat {Atom : Type} (m : Model Atom) (φ : Modal.Formula Atom) : Prop :=
   ∀ w, world_sat m w φ
 
-def semantics {Atom : Type} {h_frame : Frame → Prop} :
-    Logic.Semantics (Formula Atom) :=
-  { model := Model Atom h_frame,
+def semantics {Atom : Type} : Logic.Semantics (Formula Atom) :=
+  { model := Model Atom,
     satisfies := model_sat }
 
 end Modal.Models.Nbhd
