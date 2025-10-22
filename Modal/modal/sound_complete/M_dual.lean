@@ -98,59 +98,53 @@ lemma ax_m_is_valid {Atom : Type} (φ ψ : Modal.Formula Atom) :
     simp [Dual.world_sat] at hpq
     exact ⟨v, hrel, hpq.1⟩
 
-lemma rl_re_is_valid {Atom : Type} {Γ : Set (Modal.Formula Atom)} (φ ψ : Modal.Formula Atom)
-    (ih : ∀ (model : Dual.Model Atom)
-            (_hΓ : ∀ ψ_Γ ∈ Γ, Dual.model_sat model ψ_Γ),
-          Dual.model_sat model (Rules.re φ ψ).premise) :
-    ∀ (model : Dual.Model Atom)
-      (_hΓ : ∀ ψ_Γ ∈ Γ, Dual.model_sat model ψ_Γ),
-      Dual.model_sat model ((Rules.re φ ψ).conclusion) := by
-  intro model hΓ w
-  unfold Rules.re
+-- CPL tautology: biconditional is symmetric
+private lemma iff_symm_at_world {Atom : Type} {model : Dual.Model Atom} {w : model.frame.world}
+    {φ ψ : Modal.Formula Atom} (h : Dual.world_sat model w (φ ↔ ψ)) :
+    Dual.world_sat model w (ψ ↔ φ) := by
+  simp only [CPL.Syntax.iff, CPL.Syntax.and, CPL.Syntax.neg, Dual.world_sat] at h ⊢
+  intro h_contra
+  apply h
+  intro h_fwd h_bwd
+  exact h_contra h_bwd h_fwd
+
+-- Helper: extract forward implication from biconditional
+private lemma fwd_from_iff {Atom : Type} {model : Dual.Model Atom} {w : model.frame.world}
+    {φ ψ : Modal.Formula Atom} (h_iff : Dual.world_sat model w (φ ↔ ψ))
+    (h_phi : Dual.world_sat model w φ) : Dual.world_sat model w ψ := by
+  simp only [CPL.Syntax.iff, CPL.Syntax.and, CPL.Syntax.neg, Dual.world_sat] at h_iff ⊢
+  by_contra h_not_psi
+  apply h_iff
+  intro h_fwd _
+  exact h_not_psi (h_fwd h_phi)
+
+lemma rl_re_is_valid {Atom : Type} (φ ψ : Modal.Formula Atom) (model : Dual.Model Atom) :
+    Dual.model_sat model (Rules.re φ ψ).premise →
+    Dual.model_sat model (Rules.re φ ψ).conclusion := by
+  intro h w
+  unfold Rules.re at *
   simp only [CPL.Syntax.iff, CPL.Syntax.and, CPL.Syntax.neg, Dual.world_sat]
   cases w with
   | inl wn =>
     intro h_contra
     apply h_contra
-    · -- Prove □φ → □ψ
+    · -- Prove □φ → □ψ using forward direction
       intro h_box_phi v hrel
-      have hv := ih model hΓ v
-      have hphi := h_box_phi v hrel
-      by_contra h_not_psi
-      apply hv
-      intro h_fwd h_bwd
-      unfold Dual.world_sat at h_fwd
-      exact h_not_psi (h_fwd hphi)
-    · -- Prove □ψ → □φ
+      exact fwd_from_iff (h v) (h_box_phi v hrel)
+    · -- Prove □ψ → □φ using symmetry then forward direction
       intro h_box_psi v hrel
-      have hv := ih model hΓ v
-      have hpsi := h_box_psi v hrel
-      by_contra h_not_phi
-      apply hv
-      intro h_fwd h_bwd
-      unfold Dual.world_sat at h_bwd
-      exact h_not_phi (h_bwd hpsi)
+      exact fwd_from_iff (iff_symm_at_world (h v)) (h_box_psi v hrel)
   | inr wp =>
     intro h_contra
     apply h_contra
-    · -- Prove □φ → □ψ
+    · -- Prove □φ → □ψ using forward direction
       intro ⟨v, hrel, hphi⟩
-      have hv := ih model hΓ v
       use v, hrel
-      by_contra h_not_psi
-      apply hv
-      intro h_fwd h_bwd
-      unfold Dual.world_sat at h_fwd
-      exact h_not_psi (h_fwd hphi)
-    · -- Prove □ψ → □φ
+      exact fwd_from_iff (h v) hphi
+    · -- Prove □ψ → □φ using symmetry then forward direction
       intro ⟨v, hrel, hpsi⟩
-      have hv := ih model hΓ v
       use v, hrel
-      by_contra h_not_phi
-      apply hv
-      intro h_fwd h_bwd
-      unfold Dual.world_sat at h_bwd
-      exact h_not_phi (h_bwd hpsi)
+      exact fwd_from_iff (iff_symm_at_world (h v)) hpsi
 
 theorem is_sound (Atom : Type) :
   Logic.is_sound_strong (M.proof_system Atom) (Dual.semantics Atom) := by
@@ -159,7 +153,10 @@ theorem is_sound (Atom : Type) :
   | assumption hmem => exact hΓ _ hmem
   | cpl h_cpl => exact cpl_is_valid _ h_cpl model
   | m => exact ax_m_is_valid _ _ model
-  | re h_prem ih_prem => exact rl_re_is_valid _ _ ih_prem model hΓ
+  | re h_prem ih_prem => exact rl_re_is_valid _ _ model (ih_prem model hΓ)
+    -- ih_prem: ∀ model hΓ, model_sat model (premise)
+    -- We have: model_sat model (premise) from ih_prem model hΓ
+
 
 end soundness
 
