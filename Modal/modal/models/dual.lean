@@ -30,8 +30,7 @@ def model_sat {Atom : Type}
     (m : Model Atom) (φ : Modal.Formula Atom) : Prop :=
   ∀ w, world_sat m w φ
 
-def semantics {Atom : Type} :
-    Logic.Semantics (Formula Atom) :=
+def semantics (Atom : Type) : Logic.Semantics (Formula Atom) :=
   { model := Model Atom,
     satisfies := model_sat }
 

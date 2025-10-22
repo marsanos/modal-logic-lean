@@ -98,15 +98,15 @@ lemma ax_m_is_valid {Atom : Type} (φ ψ : Modal.Formula Atom) :
     simp [Dual.world_sat] at hpq
     exact ⟨v, hrel, hpq.1⟩
 
--- Helper lemma that works with the induction hypothesis structure from is_sound
 lemma rl_re_is_valid {Atom : Type} {Γ : Set (Modal.Formula Atom)} (φ ψ : Modal.Formula Atom)
     (ih : ∀ (model : Dual.Model Atom)
             (_hΓ : ∀ ψ_Γ ∈ Γ, Dual.model_sat model ψ_Γ),
-          Dual.model_sat model (φ ↔ ψ)) :
+          Dual.model_sat model (Rules.re φ ψ).premise) :
     ∀ (model : Dual.Model Atom)
       (_hΓ : ∀ ψ_Γ ∈ Γ, Dual.model_sat model ψ_Γ),
-      Dual.model_sat model (□φ ↔ □ψ) := by
+      Dual.model_sat model ((Rules.re φ ψ).conclusion) := by
   intro model hΓ w
+  unfold Rules.re
   simp only [CPL.Syntax.iff, CPL.Syntax.and, CPL.Syntax.neg, Dual.world_sat]
   cases w with
   | inl wn =>
@@ -152,15 +152,9 @@ lemma rl_re_is_valid {Atom : Type} {Γ : Set (Modal.Formula Atom)} (φ ψ : Moda
       unfold Dual.world_sat at h_bwd
       exact h_not_phi (h_bwd hpsi)
 
-theorem is_sound {Atom : Type} :
-  Logic.is_sound_strong (M.proof_system Atom) Dual.semantics := by
-  intro Γ φ
-  -- Unfold the definition to see what we need to prove
-  change M.proof Γ φ → Logic.Semantics.is_sem_conseq (Dual.semantics (Atom := Atom)) Γ φ
-  intro hproof model hΓ
-  -- model : Dual.Model Atom all_frames
-  -- hΓ : ∀ ψ ∈ Γ, Dual.model_sat model ψ
-  -- Goal: Dual.model_sat model φ
+theorem is_sound (Atom : Type) :
+  Logic.is_sound_strong (M.proof_system Atom) (Dual.semantics Atom) := by
+  intro Γ φ hproof model hΓ
   induction hproof generalizing model with
   | assumption hmem => exact hΓ _ hmem
   | cpl h_cpl => exact cpl_is_valid _ h_cpl model
@@ -536,7 +530,7 @@ theorem logicM_dual_complete :
 -/
 
 theorem is_complete (Atom : Type) :
-    Logic.is_complete_strong (M.proof_system Atom) Dual.semantics :=
+    Logic.is_complete_strong (M.proof_system Atom) (Dual.semantics Atom) :=
   sorry
 
 end completeness
