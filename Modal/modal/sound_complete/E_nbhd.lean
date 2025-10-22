@@ -9,12 +9,13 @@ open Modal.ProofSystems Modal.Models
 
 def all_frames : Nbhd.Frame → Prop := fun _ => True
 
-theorem is_sound (Atom : Type) :
-    Logic.is_sound (E.proof_system Atom) (@Nbhd.semantics Atom all_frames) (by rfl) :=
+theorem is_sound_strong (Atom : Type) :
+    Logic.is_sound_strong (E.proof_system Atom) (@Nbhd.semantics Atom all_frames) :=
   by admit
 
-theorem is_complete (Atom : Type) :
-    Logic.is_complete (E.proof_system Atom) (@Nbhd.semantics Atom all_frames) (by rfl) :=
+theorem is_complete_weak (Atom : Type) :
+    Logic.is_complete_weak (E.proof_system Atom) (@Nbhd.semantics Atom all_frames) :=
   by admit
+-- E is not strongly complete wrt neighborhood models
 
 end Modal.SoundComplete.E_Nbhd

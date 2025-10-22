@@ -31,9 +31,9 @@ def model_sat {Atom : Type} {h_frame : Frame → Prop}
     (m : Model Atom h_frame) (φ : Modal.Formula Atom) : Prop :=
   ∀ w, world_sat m w φ
 
-instance semantics {Atom : Type} {h_frame : Frame → Prop} : Logic.Semantics :=
-  { form := Formula Atom,
-    model := Model Atom h_frame,
+def semantics {Atom : Type} {h_frame : Frame → Prop} :
+    Logic.Semantics (Formula Atom) :=
+  { model := Model Atom h_frame,
     satisfies := model_sat }
 
 -- Defines truth in all frames satisfying a given class/property.

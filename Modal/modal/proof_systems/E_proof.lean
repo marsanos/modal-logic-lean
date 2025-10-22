@@ -16,8 +16,7 @@ inductive proof {Atom : Type} : Set (Formula Atom) → Formula Atom → Prop whe
       (h_prem : proof Γ (Rules.re φ ψ).premise) :
       proof Γ (Rules.re φ ψ).conclusion
 
-instance proof_system (Atom : Type) : Logic.ProofSystem :=
-  { form := Formula Atom,
-    entails := proof }
+def proof_system (Atom : Type) : Logic.ProofSystem (Formula Atom) :=
+  { entails := proof }
 
 end Modal.ProofSystems.E

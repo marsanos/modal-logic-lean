@@ -61,23 +61,19 @@ lemma cpl_is_valid {Atom : Type} (φ : Modal.Formula Atom)
     (h : (CPL.proof_system (Modal.Formula Atom)).entails ∅ (to_cpl φ)) :
     Dual.is_valid (fun _ => True) φ := by
   intro m w
-  -- Create a CPL valuation for CPL formulas where atoms are modal formulas
+  -- Define a CPL valuation for the current world
   let v : CPL.Valuation (CPL.Formula (Modal.Formula Atom)) := {
     val := eval_cpl_with_modal_atoms m w
     h_val_bot := rfl
     h_val_impl := fun _ _ => rfl
   }
-  have sound := CPL.is_sound (Modal.Formula Atom)
-  -- Apply soundness to get semantic consequence
+  -- CPL soundness: syntactic entailment implies semantic entailment
+  have sound := CPL.is_sound_strong (Modal.Formula Atom)
   have sem := sound ∅ (to_cpl φ) h
-  -- Unfold the definitions to see the structure
-  unfold Logic.is_sem_conseq at sem
-  -- Simplify with the fact that CPL.semantics has model = Valuation and satisfies = val
-  simp [CPL.semantics] at sem
-  -- Now sem : ∀ (M : CPL.Valuation (CPL.Formula (Formula Atom))), M.val (to_cpl φ)
-  have sat := sem v
-  -- sat : v.val (to_cpl φ), which is eval_cpl_with_modal_atoms m w (to_cpl φ)
-  -- Use the preservation lemma to relate CPL satisfaction to Modal satisfaction
+  -- sem: ∀ (v : CPL.Valuation (CPL.Formula (Modal.Formula Atom))), v.val (to_cpl φ)
+  have sat := sem v (by simp)
+  -- sat: eval_cpl_with_modal_atoms m w (to_cpl φ)
+  -- Use the preservation lemma to relate CPL and modal satisfaction
   exact (to_cpl_preserves_sat m w φ).mp sat
 
 lemma ax_m_is_valid {Atom : Type} (φ ψ : Modal.Formula Atom) :
@@ -108,10 +104,10 @@ lemma ax_m_is_valid {Atom : Type} (φ ψ : Modal.Formula Atom) :
 -- Helper lemma that works with the induction hypothesis structure from is_sound
 lemma rl_re_is_valid {Atom : Type} {Γ : Set (Modal.Formula Atom)} (φ ψ : Modal.Formula Atom)
     (ih : ∀ (model : Dual.Model Atom all_frames)
-            (_hΓ : ∀ ψ_Γ ∈ Set.image id Γ, Dual.model_sat model ψ_Γ),
+            (_hΓ : ∀ ψ_Γ ∈ Γ, Dual.model_sat model ψ_Γ),
           Dual.model_sat model (φ ↔ ψ)) :
     ∀ (model : Dual.Model Atom all_frames)
-      (_hΓ : ∀ ψ_Γ ∈ Set.image id Γ, Dual.model_sat model ψ_Γ),
+      (_hΓ : ∀ ψ_Γ ∈ Γ, Dual.model_sat model ψ_Γ),
       Dual.model_sat model (□φ ↔ □ψ) := by
   intro model hΓ w
   simp only [CPL.Syntax.iff, CPL.Syntax.and, CPL.Syntax.neg, Dual.world_sat]
@@ -160,17 +156,16 @@ lemma rl_re_is_valid {Atom : Type} {Γ : Set (Modal.Formula Atom)} (φ ψ : Moda
       exact h_not_phi (h_bwd hpsi)
 
 theorem is_sound {Atom : Type} :
-    Logic.is_sound (M.proof_system Atom) (@Dual.semantics Atom all_frames) (by rfl) := by
+  Logic.is_sound_strong (M.proof_system Atom) (@Dual.semantics Atom all_frames) := by
   intro Γ φ
   -- Unfold the definition to see what we need to prove
-  change M.proof Γ φ → Logic.is_sem_conseq (@Dual.semantics Atom all_frames)
-                                           (Set.image id Γ) φ
+  change M.proof Γ φ → Logic.Semantics.is_sem_conseq (Dual.semantics (Atom := Atom)) Γ φ
   intro hproof model hΓ
   -- model : Dual.Model Atom all_frames
-  -- hΓ : ∀ ψ ∈ Set.image id Γ, Dual.model_sat model ψ
+  -- hΓ : ∀ ψ ∈ Γ, Dual.model_sat model ψ
   -- Goal: Dual.model_sat model φ
   induction hproof generalizing model with
-  | assumption hmem => exact hΓ _ (Set.mem_image_of_mem id hmem)
+  | assumption hmem => exact hΓ _ hmem
   | cpl h_cpl => exact cpl_is_valid _ h_cpl model
   | m => exact ax_m_is_valid _ _ model
   | re h_prem ih_prem => exact rl_re_is_valid _ _ ih_prem model hΓ
@@ -544,7 +539,7 @@ theorem logicM_dual_complete :
 -/
 
 theorem is_complete (Atom : Type) :
-     Logic.is_complete (M.proof_system Atom) (@Dual.semantics Atom all_frames) (by rfl) :=
+    Logic.is_complete_strong (M.proof_system Atom) (@Dual.semantics Atom all_frames) :=
   sorry
 
 end completeness

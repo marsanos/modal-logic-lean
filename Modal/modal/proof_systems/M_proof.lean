@@ -18,8 +18,7 @@ inductive proof {Atom : Type} : Set (Formula Atom) → Formula Atom → Prop whe
   | m {Γ : Set (Formula Atom)} {φ ψ : Formula Atom} :
       proof Γ (Axioms.m φ ψ)
 
-instance proof_system (Atom : Type) : Logic.ProofSystem :=
-  { form := Formula Atom,
-    entails := proof }
+def proof_system (Atom : Type) : Logic.ProofSystem (Formula Atom) :=
+    { entails := proof }
 
 end Modal.ProofSystems.M
