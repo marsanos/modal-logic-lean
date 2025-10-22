@@ -20,7 +20,7 @@ def m (φ ψ : Form) : Form := □(φ∧ψ) → □φ
 def k (φ ψ : Form) : Form := □(φ → ψ) → (□φ → □ψ)
 def n : Form := □⊤
 
--- the following are correct, but not needed as yet
+-- the following are correct definitions, but not needed as yet
 --def t (φ : Form) : Form := □φ → φ
 --def four (φ : Form) : Form := □φ → □(□φ)
 --def five (φ : Form) : Form := ◇φ → □(◇φ)

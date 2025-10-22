@@ -18,6 +18,12 @@ def is_tauto {Form : Type _} (ps : ProofSystem Form) (φ : Form) : Prop :=
   ps.entails ∅ φ
 notation:50 "⊢[" ps "] " φ => is_tauto ps φ
 
+def is_consistent {Form : Type _} (ps : ProofSystem Form) (Γ : Set Form) : Prop :=
+  ∃ φ, ¬ (ps.entails Γ φ)
+
+def is_mcs {Form : Type _} (ps : ProofSystem Form) (Γ : Set Form) : Prop :=
+  is_consistent ps Γ ∧ ∀ φ, φ ∉ Γ → ¬ is_consistent ps (Γ ∪ {φ})
+
 end ProofSystem
 
 

@@ -1,6 +1,7 @@
 import Modal.modal.models.dual
 import Modal.modal.proof_systems.M_proof
 import Modal.cpl.proof
+import Modal.common.logic
 
 
 namespace Modal.SoundComplete.M_Dual
@@ -10,15 +11,6 @@ open Modal.ProofSystems Modal.Models
 
 section soundness
 
--- each world contains a valuation - this function extracts it
---def world_as_valuation {Atom : Type} (m : Dual.Model Atom all_frames) (w : m.frame.world) :
---    CPL.Valuation (Modal.Formula Atom) where
---  val := Dual.world_sat m w
---  h_val_bot := rfl
---  h_val_impl _ _ := rfl
-
--- So that the proof is not too long, we prove some helper lemmas first.
-
 -- Helper function to evaluate CPL formulas where atoms are modal formulas
 def eval_cpl_with_modal_atoms {Atom : Type} (m : Dual.Model Atom) (w : m.frame.world) :
     CPL.Formula (Modal.Formula Atom) → Prop
@@ -26,7 +18,13 @@ def eval_cpl_with_modal_atoms {Atom : Type} (m : Dual.Model Atom) (w : m.frame.w
   | CPL.Formula.bot => False
   | CPL.Formula.impl ψ1 ψ2 => (eval_cpl_with_modal_atoms m w ψ1 → eval_cpl_with_modal_atoms m w ψ2)
 
--- The CPL translation preserves semantics
+-- Each world contains a valuation - this function extracts it
+def world_as_valuation {Atom : Type} (m : Dual.Model Atom) (w : m.frame.world) :
+    CPL.Valuation (CPL.Formula (Modal.Formula Atom)) where
+  val := eval_cpl_with_modal_atoms m w
+  h_val_bot := rfl
+  h_val_impl _ _ := rfl
+
 lemma to_cpl_preserves_sat {Atom : Type} (m : Dual.Model Atom)
     (w : m.frame.world) (φ : Modal.Formula Atom) :
     eval_cpl_with_modal_atoms m w (to_cpl φ) ↔ Dual.world_sat m w φ := by
@@ -58,18 +56,10 @@ lemma cpl_is_valid {Atom : Type} (φ : Modal.Formula Atom)
     (h : (CPL.proof_system (Modal.Formula Atom)).entails ∅ (to_cpl φ)) :
     Dual.is_valid φ := by
   intro m w
-  -- Define a CPL valuation for the current world
-  let v : CPL.Valuation (CPL.Formula (Modal.Formula Atom)) := {
-    val := eval_cpl_with_modal_atoms m w
-    h_val_bot := rfl
-    h_val_impl := fun _ _ => rfl
-  }
   -- CPL soundness: syntactic entailment implies semantic entailment
   have sound := CPL.is_sound_strong (Modal.Formula Atom)
   have sem := sound ∅ (to_cpl φ) h
-  -- sem: ∀ (v : CPL.Valuation (CPL.Formula (Modal.Formula Atom))), v.val (to_cpl φ)
-  have sat := sem v (by simp)
-  -- sat: eval_cpl_with_modal_atoms m w (to_cpl φ)
+  have sat := sem (world_as_valuation m w) (by simp)
   -- Use the preservation lemma to relate CPL and modal satisfaction
   exact (to_cpl_preserves_sat m w φ).mp sat
 
@@ -164,48 +154,46 @@ end soundness
 section completeness
 
 section canonical_model
-/-
-abbrev NWorld (α : Type) :=
-  {w : (Multiset (ModalFormula α)) × Bool //
-    is_maximally_consistent w.1 ∧ w.2 = true}
-abbrev PWorld (α : Type) :=
-  {w : (Multiset (ModalFormula α)) × Bool //
-    is_maximally_consistent w.1 ∧ w.2 = false}
-abbrev World (α : Type) := NWorld α ⊕ PWorld α
 
-def is_nworld {α : Type} : World α → Prop
+abbrev NWorld (Atom : Type) := {Γ : Set (Formula Atom) // (M.proof_system Atom).is_mcs Γ}
+abbrev PWorld (Atom : Type) := {Γ : Set (Formula Atom) // (M.proof_system Atom).is_mcs Γ}
+abbrev World (Atom : Type) := NWorld Atom ⊕ PWorld Atom
+
+def is_nworld {Atom : Type} : World Atom → Bool
   | .inl _ => true
   | .inr _ => false
-def is_pworld {α : Type} : World α → Prop
+def is_pworld {Atom : Type} : World Atom → Bool
   | .inl _ => false
   | .inr _ => true
 
-def world_to_set {α : Type} (w : World α) : Multiset (ModalFormula α) :=
+def world_to_form_set {Atom : Type} (w : World Atom) : Set (Formula Atom) :=
   match w with
-  | .inl wn => wn.val.1
-  | .inr wp => wp.val.1
+  | .inl wn => wn.val
+  | .inr wp => wp.val
 
-def canonical_acc (α : Type) : World α → World α → Prop :=
+def canonical_acc (Atom : Type) : World Atom → World Atom → Prop :=
   fun w₁ w₂ =>
     match w₁ with
-    | .inl _ => ∀ φ : ModalFormula α,
-                  (□φ) ∈ world_to_set w₁ → φ ∈ world_to_set w₂
-    | .inr _ => ∀ φ : ModalFormula α,
-                  (◇φ) ∈ world_to_set w₁ → φ ∈ world_to_set w₂
+    | .inl _ => ∀ φ : Formula Atom,
+                  (□φ) ∈ world_to_form_set w₁ → φ ∈ world_to_form_set w₂
+    | .inr _ => ∀ φ : Formula Atom,
+                  (◇φ) ∈ world_to_form_set w₁ → φ ∈ world_to_form_set w₂
 
-def CanonicalFrame (α : Type) : Dual.Frame where
-  n_world := NWorld α
-  p_world := PWorld α
-  rel := canonical_acc α
+def CanonicalFrame (Atom : Type) : Dual.Frame where
+  n_world := NWorld Atom
+  p_world := PWorld Atom
+  rel := canonical_acc Atom
 
 -- Canonical model: canonical frame with valuation based on atomic formulas
-def CanonicalModel (α : Type) : Dual.Model α where
-  frame := CanonicalFrame α
+def CanonicalModel (Atom : Type) : Dual.Model Atom where
+  frame := CanonicalFrame Atom
   val w a := match w with
-    | .inl wn => (ModalFormula.atom a) ∈ wn.val.1
-    | .inr wp => (ModalFormula.atom a) ∈ wp.val.1
--/
+    | .inl wn => (Formula.atom a) ∈ wn.val
+    | .inr wp => (Formula.atom a) ∈ wp.val
+
 end canonical_model
+
+
 /-
 lemma no_cpl_bot : ¬ CPLSeq.CPLProof (⊥ : ModalFormula α) := by
   intro h
@@ -531,16 +519,5 @@ theorem is_complete (Atom : Type) :
   sorry
 
 end completeness
-
-/-
-theorem logicM_dual_sc :
-    ∀ (φ : ModalFormula α), valid φ ↔ MProof φ := by
-    intro φ
-    constructor
-    · exact logicM_dual_complete φ
-    · exact logicM_dual_sound φ
-
-end Modal.SoundComplete.M_Dual
--/
 
 end Modal.SoundComplete.M_Dual

@@ -27,9 +27,8 @@ theorem is_complete_strong (Atom : Type) :
      Logic.is_complete_strong (proof_system Atom) (semantics Atom) :=
   by admit
 
-/- TODO: I may need to define specific proof systems and semantics for CPL.
+/- TODO: I may need to define specific proof systems for CPL.
          I will do it whenever (if ever) I need it.
-         Indeed, a proof system is already done in `_sequents.lean`.
-         And the semantics is defined in `_metatheorems.lean`. -/
+         Indeed, a proof system is already done in `_sequents.lean`. -/
 
 end CPL
