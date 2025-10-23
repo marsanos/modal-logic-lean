@@ -1,6 +1,10 @@
+- study about strong completeness where only weak one is asserted
+
 - review how I'm dealing with conditions on frames
+
 - make it possible logic+rules+axioms to build a new logic
   - in the same way as frame+condition creates new semantics
+
 - avoid the `Atom` annoyance:
     ```lean
     variable {Atom : Type}
@@ -17,6 +21,7 @@
     intro h w
     ...
     ```
+
 - review the completeness proof:
 """
 Analysis of Each admit-marked Lemma:

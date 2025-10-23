@@ -340,6 +340,7 @@ theorem is_complete_weak (Atom : Type) :
     valid_implies_canon_sat φ hvalid
   -- Formulas satisfied in canonical model are derivable
   exact complete_wrt_canon φ hcanon
+-- TODO: what about strong completeness?
 
 end completeness
 
