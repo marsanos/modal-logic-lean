@@ -15,7 +15,7 @@ import Modal.modal.common.syntax
 -- modal logics (proof systems)
 import Modal.modal.proof_systems.K_proof
 import Modal.modal.proof_systems.E_proof
-import Modal.modal.proof_systems.M_proof
+import Modal.modal.proof_systems.EM_proof
 
 -- models
 import Modal.modal.models.dual
@@ -25,5 +25,5 @@ import Modal.modal.models.nbhd
 -- soundness and completeness results
 import Modal.modal.sound_complete.E_nbhd
 import Modal.modal.sound_complete.K_kripke
-import Modal.modal.sound_complete.M_dual
-import Modal.modal.sound_complete.M_upnbhd
+import Modal.modal.sound_complete.EM_dual
+import Modal.modal.sound_complete.EM_upnbhd

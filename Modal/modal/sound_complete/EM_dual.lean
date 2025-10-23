@@ -1,10 +1,10 @@
 import Modal.modal.models.dual
-import Modal.modal.proof_systems.M_proof
+import Modal.modal.proof_systems.EM_proof
 import Modal.cpl.proof
 import Modal.common.logic
 
 
-namespace Modal.SoundComplete.M_Dual
+namespace Modal.SoundComplete.EM_Dual
 
 open Modal.ProofSystems Modal.Models
 
@@ -137,7 +137,7 @@ lemma rl_re_is_valid {Atom : Type} (φ ψ : Modal.Formula Atom) (model : Dual.Mo
       exact fwd_from_iff (iff_symm_at_world (h v)) hpsi
 
 theorem is_sound (Atom : Type) :
-  Logic.is_sound_strong (M.proof_system Atom) (Dual.semantics Atom) := by
+  Logic.is_sound_strong (EM.proof_system Atom) (Dual.semantics Atom) := by
   intro Γ φ hproof model hΓ
   induction hproof generalizing model with
   | assumption hmem => exact hΓ _ hmem
@@ -155,8 +155,8 @@ section completeness
 
 section canonical_model
 
-abbrev NWorld (Atom : Type) := {Γ : Set (Formula Atom) // (M.proof_system Atom).is_mcs Γ}
-abbrev PWorld (Atom : Type) := {Γ : Set (Formula Atom) // (M.proof_system Atom).is_mcs Γ}
+abbrev NWorld (Atom : Type) := {Γ : Set (Formula Atom) // (EM.proof_system Atom).is_mcs Γ}
+abbrev PWorld (Atom : Type) := {Γ : Set (Formula Atom) // (EM.proof_system Atom).is_mcs Γ}
 abbrev World (Atom : Type) := NWorld Atom ⊕ PWorld Atom
 
 def is_nworld {Atom : Type} : World Atom → Bool
@@ -515,9 +515,9 @@ theorem logicM_dual_complete :
 -/
 
 theorem is_complete (Atom : Type) :
-    Logic.is_complete_strong (M.proof_system Atom) (Dual.semantics Atom) :=
+    Logic.is_complete_strong (EM.proof_system Atom) (Dual.semantics Atom) :=
   sorry
 
 end completeness
 
-end Modal.SoundComplete.M_Dual
+end Modal.SoundComplete.EM_Dual

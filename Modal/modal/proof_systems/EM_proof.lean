@@ -3,7 +3,7 @@ import Modal.modal.common.formula
 import Modal.modal.common.axioms_rules
 
 
-namespace Modal.ProofSystems.M
+namespace Modal.ProofSystems.EM
 
 inductive proof {Atom : Type} : Set (Formula Atom) → Formula Atom → Prop where
   | assumption {Γ : Set (Formula Atom)} {p : Formula Atom}
@@ -21,4 +21,4 @@ inductive proof {Atom : Type} : Set (Formula Atom) → Formula Atom → Prop whe
 def proof_system (Atom : Type) : Logic.ProofSystem (Formula Atom) :=
     { entails := proof }
 
-end Modal.ProofSystems.M
+end Modal.ProofSystems.EM
