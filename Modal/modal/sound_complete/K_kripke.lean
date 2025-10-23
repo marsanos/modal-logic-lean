@@ -13,9 +13,9 @@ theorem is_sound_strong (Atom : Type) :
     Logic.is_sound_strong (K.proof_system Atom) Kripke.semantics :=
   by admit
 
-theorem is_complete_weak (Atom : Type) :
-     Logic.is_complete_weak (K.proof_system Atom) Kripke.semantics :=
+theorem is_complete_strong (Atom : Type) :
+     Logic.is_complete_strong (K.proof_system Atom) Kripke.semantics :=
   by admit
--- K is not strongly complete wrt Kripke models
+-- See, for example, Blackburn et al., Example 4.11 and Proposition 4.12.
 
 end Modal.SoundComplete.K_Kripke

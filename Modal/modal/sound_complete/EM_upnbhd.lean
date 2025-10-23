@@ -20,6 +20,6 @@ theorem is_sound_strong (Atom : Type) :
 theorem is_complete_weak (Atom : Type) :
     Logic.is_complete_weak (EM.proof_system Atom) upward_closed_semantics :=
   by admit
--- M is not strongly complete wrt upclosed neighbourhood models
+-- TODO: I don't know whether EM is strongly complete wrt upward-closed neighborhood models
 
 end Modal.SoundComplete.EM_UpNbhd

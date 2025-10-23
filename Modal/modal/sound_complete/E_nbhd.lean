@@ -13,6 +13,6 @@ theorem is_sound_strong (Atom : Type) :
 theorem is_complete_weak (Atom : Type) :
     Logic.is_complete_weak (E.proof_system Atom) Nbhd.semantics :=
   by admit
--- E is not strongly complete wrt neighborhood models
+-- TODO: I don't know whether E is strongly complete wrt neighborhood models
 
 end Modal.SoundComplete.E_Nbhd

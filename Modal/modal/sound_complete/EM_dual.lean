@@ -136,7 +136,7 @@ lemma rl_re_is_valid {Atom : Type} (φ ψ : Modal.Formula Atom) (model : Dual.Mo
       use v, hrel
       exact fwd_from_iff (iff_symm_at_world (h v)) hpsi
 
-theorem is_sound (Atom : Type) :
+theorem is_sound_strong (Atom : Type) :
   Logic.is_sound_strong (EM.proof_system Atom) (Dual.semantics Atom) := by
   intro Γ φ hproof model hΓ
   induction hproof generalizing model with
@@ -146,7 +146,6 @@ theorem is_sound (Atom : Type) :
   | re h_prem ih_prem => exact rl_re_is_valid _ _ model (ih_prem model hΓ)
     -- ih_prem: ∀ model hΓ, model_sat model (premise)
     -- We have: model_sat model (premise) from ih_prem model hΓ
-
 
 end soundness
 
@@ -158,13 +157,6 @@ section canonical_model
 abbrev NWorld (Atom : Type) := {Γ : Set (Formula Atom) // (EM.proof_system Atom).is_mcs Γ}
 abbrev PWorld (Atom : Type) := {Γ : Set (Formula Atom) // (EM.proof_system Atom).is_mcs Γ}
 abbrev World (Atom : Type) := NWorld Atom ⊕ PWorld Atom
-
-def is_nworld {Atom : Type} : World Atom → Bool
-  | .inl _ => true
-  | .inr _ => false
-def is_pworld {Atom : Type} : World Atom → Bool
-  | .inl _ => false
-  | .inr _ => true
 
 def world_to_form_set {Atom : Type} (w : World Atom) : Set (Formula Atom) :=
   match w with
@@ -194,329 +186,160 @@ def CanonicalModel (Atom : Type) : Dual.Model Atom where
 end canonical_model
 
 
-/-
-lemma no_cpl_bot : ¬ CPLSeq.CPLProof (⊥ : ModalFormula α) := by
-  intro h
-  have hvalid := cpl_valid (α := α) (φ := (⊥ : ModalFormula α)) h
-  let frame : Dual.Frame :=
-    { n_world := Unit
-      p_world := PEmpty
-      rel := fun _ _ => False }
-  have hfalse := hvalid frame (fun _ _ => False) (Sum.inl ())
-  simp [Dual.world_sat] at hfalse
+-- Key lemmas needed for completeness
 
-lemma consistent_no_bot {Γ : Multiset (ModalFormula α)}
-    (hΓ : is_consistent (α := α) Γ) : (⊥ : ModalFormula α) ∉ Γ := by
-  intro hbot
-  have : MProof' (α := α) Γ ⊥ := MProof'.assumption hbot
-  exact hΓ this
-
-lemma mcs_no_bot {Γ : Multiset (ModalFormula α)}
-    (hΓ : is_maximally_consistent (α := α) Γ) : (⊥ : ModalFormula α) ∉ Γ :=
-  consistent_no_bot hΓ.1
-
-lemma mcs_no_contradiction
-    {Γ : Multiset (ModalFormula α)}
-    {φ : ModalFormula α}
-    (hφ : φ ∈ Γ) (hneg : (¬φ) ∈ Γ) : MProof' (α := α) Γ ⊥ := by
+-- A formula is derivable iff it's in every MCS
+lemma deriv_iff_mem_mcs {Atom : Type} (φ : Formula Atom) :
+    (EM.proof_system Atom).entails ∅ φ ↔
+    ∀ {Γ : Set (Formula Atom)}, (EM.proof_system Atom).is_mcs Γ → φ ∈ Γ := by
   admit
-  -- Standard CPL result: from {φ, ¬φ} derive ⊥
+  -- Well-known result for normal modal logics.
+  -- See, for example, Chellas, Theorem 2.20 (2).
 
-lemma mcs_double_neg
-    {Γ : Multiset (ModalFormula α)}
-    (hΓ : is_maximally_consistent (α := α) Γ)
-    {φ : ModalFormula α} :
-    φ ∈ Γ ↔ (¬¬φ) ∈ Γ := by
+-- Standard MCS properties needed for the truth lemma
+
+-- Bottom is never in an MCS
+lemma mcs_no_bot {Atom : Type} {Γ : Set (Formula Atom)}
+    (hΓ : (EM.proof_system Atom).is_mcs Γ) : (⊥ : Formula Atom) ∉ Γ := by
   admit
-  -- Standard result for MCS: double negation equivalence
+  -- Standard result: MCS are consistent, and ⊥ witnesses inconsistency
 
-lemma mcs_neg_box_iff_dia_neg
-    {Γ : Multiset (ModalFormula α)}
-    (hΓ : is_maximally_consistent (α := α) Γ)
-    {φ : ModalFormula α} :
-    (¬□φ) ∈ Γ ↔ (◇(¬φ)) ∈ Γ := by
+-- MCS are closed under implication
+lemma mcs_impl_closed {Atom : Type} {Γ : Set (Formula Atom)}
+    (hΓ : (EM.proof_system Atom).is_mcs Γ) {φ ψ : Formula Atom} :
+    (φ → ψ) ∈ Γ ↔ (φ ∈ Γ → ψ ∈ Γ) := by
   admit
-  -- Since ◇ψ := ¬□¬ψ, we have ◇(¬φ) := ¬□¬¬φ
-  -- By double negation in MCS: φ ↔ ¬¬φ, so □φ ↔ □¬¬φ
-  -- Therefore ¬□φ ↔ ¬□¬¬φ = ◇(¬φ)
+  -- Standard result: MCS closed under modus ponens
 
-lemma mcs_mem_or_neg_mem
-    {Γ : Multiset (ModalFormula α)}
-    (hΓ : is_maximally_consistent (α := α) Γ)
-    (φ : ModalFormula α) : φ ∈ Γ ∨ (¬φ) ∈ Γ := by
-  classical
-  by_cases hmem : φ ∈ Γ
-  · exact Or.inl hmem
-  · have h_incons : MProof' (α := α) (φ ::ₘ Γ) ⊥ := by
-      have hnot := hΓ.2 φ hmem
-      dsimp [is_consistent] at hnot
-      exact not_not.mp hnot
-    cases h_incons with
-    | assumption hbot_mem =>
-        obtain hcases | hbotΓ := Multiset.mem_cons.mp hbot_mem
-        · subst hcases
-          have : (¬(⊥ : ModalFormula α)) ∈ Γ := by
-            by_contra hnot
-            have hnincons : MProof' (α := α) ((¬(⊥ : ModalFormula α)) ::ₘ Γ) ⊥ := by
-              have hnotCons := hΓ.2 (¬(⊥ : ModalFormula α)) hnot
-              dsimp [is_consistent] at hnotCons
-              exact not_not.mp hnotCons
-            cases hnincons with
-            | assumption habs =>
-                obtain hcases' | hbotΓ' := Multiset.mem_cons.mp habs
-                · cases hcases'
-                · exact False.elim ((mcs_no_bot hΓ) hbotΓ')
-            | cpl hbot =>
-                exact False.elim (no_cpl_bot hbot)
-          exact Or.inr (by simpa using this)
-        · exact False.elim ((mcs_no_bot hΓ) hbotΓ)
-    | cpl hbot =>
-        exact False.elim (no_cpl_bot hbot)
-
--- Standard result: if ¬□φ ∈ Γ (MCS), then {ψ | □ψ ∈ Γ} ∪ {¬φ} is consistent
--- This is used to construct witness worlds in canonical model proofs (n-worlds)
-lemma unbox_neg_consistent
-    {Γ : Multiset (ModalFormula α)}
-    (hΓ : is_maximally_consistent (α := α) Γ)
-    {φ : ModalFormula α}
-    (hneg_box : (¬□φ) ∈ Γ) :
-    ∃ Δ : Multiset (ModalFormula α),
-      is_maximally_consistent (α := α) Δ ∧
-      (∀ ψ, (□ψ) ∈ Γ → ψ ∈ Δ) ∧
-      (¬φ) ∈ Δ := by
-  admit
-  -- Well-known result for normal modal logics including M.
-  -- Proof: Show {ψ | □ψ ∈ Γ} ∪ {¬φ} is consistent, then extend via Lindenbaum.
-  -- Consistency follows from: if it were inconsistent, we could derive □¬φ,
-  -- contradicting ¬□φ ∈ Γ via maximality.
-
--- Dual result: if □φ ∈ Γ (MCS at p-world), then {ψ | ◇ψ ∈ Γ} ∪ {φ} is consistent
--- This is used to construct witness worlds for p-worlds
-lemma undia_box_consistent
-    {Γ : Multiset (ModalFormula α)}
-    (hΓ : is_maximally_consistent (α := α) Γ)
-    {φ : ModalFormula α}
-    (hbox : (□φ) ∈ Γ) :
-    ∃ Δ : Multiset (ModalFormula α),
-      is_maximally_consistent (α := α) Δ ∧
-      (∀ ψ, (◇ψ) ∈ Γ → ψ ∈ Δ) ∧
-      φ ∈ Δ := by
-  admit
-  -- Dual of unbox_neg_consistent. Well-known result for normal modal logics including M.
-  -- Proof: Show {ψ | ◇ψ ∈ Γ} ∪ {φ} is consistent, then extend via Lindenbaum.
-  -- Consistency follows from: if it were inconsistent, we could derive ◇¬φ,
-  -- which (since ◇ψ = ¬□¬ψ) means ¬□¬¬φ, and by double negation ¬□φ,
-  -- contradicting □φ ∈ Γ via maximality.
-
-lemma mcs_box_of_all
-    {Γ : Multiset (ModalFormula α)}
-    (hΓ : is_maximally_consistent (α := α) Γ)
-    {φ : ModalFormula α}
-    (hall : ∀ (v : World α),
-              canonical_acc α (.inl ⟨⟨Γ, true⟩, And.intro hΓ rfl⟩) v →
-              φ ∈ world_to_set v) :
+-- If φ is satisfied at all accessible worlds from an n-world, then □φ is in the MCS
+lemma mcs_box_of_all {Atom : Type} {Γ : Set (Formula Atom)}
+    (hΓ : (EM.proof_system Atom).is_mcs Γ) {φ : Formula Atom}
+    (hall : ∀ (v : World Atom),
+      canonical_acc Atom (.inl ⟨Γ, hΓ⟩) v → φ ∈ world_to_form_set v) :
     (□φ) ∈ Γ := by
-  -- By maximality, either □φ ∈ Γ or ¬□φ ∈ Γ
-  cases mcs_mem_or_neg_mem hΓ (□φ) with
-  | inl hbox => exact hbox
-  | inr hneg_box =>
-    -- If ¬□φ ∈ Γ, we can construct a witness world
-    obtain ⟨Δ, hΔ_mcs, hΔ_acc, hΔ_neg⟩ := unbox_neg_consistent hΓ hneg_box
-    -- Δ is an MCS with (∀ψ, □ψ ∈ Γ → ψ ∈ Δ) and ¬φ ∈ Δ
-    -- We can make Δ into a world - let's make it an n-world
-    let v : World α := .inl ⟨⟨Δ, true⟩, And.intro hΔ_mcs rfl⟩
-    -- Check that this world is accessible from our original n-world
-    have hrel : canonical_acc α (.inl ⟨⟨Γ, true⟩, And.intro hΓ rfl⟩) v := by
-      intro ψ hψ
-      exact hΔ_acc ψ hψ
-    -- By hypothesis, φ ∈ Δ
-    have hφ_mem : φ ∈ world_to_set v := hall v hrel
-    -- But we also have ¬φ ∈ Δ
-    have hneg_mem : (¬φ) ∈ Δ := hΔ_neg
-    -- This is a contradiction in the MCS Δ
-    simp [world_to_set] at hφ_mem
-    have : φ ∈ Δ ∧ (¬φ) ∈ Δ := ⟨hφ_mem, hneg_mem⟩
-    -- An MCS cannot contain both φ and ¬φ - derive ⊥
-    have hbot : MProof' (α := α) Δ ⊥ := mcs_no_contradiction hφ_mem hneg_mem
-    exact False.elim (hΔ_mcs.1 hbot)
+  admit
+  -- Proof by contradiction using Lindenbaum and witness construction
 
-lemma canon_acc_n {wn : NWorld α} {w : World α}
-    (hrel : canonical_acc α (.inl wn) w)
-    (φ : ModalFormula α)
-    (hbox : (□φ) ∈ world_to_set (.inl wn)) :
-    φ ∈ world_to_set w := by
+-- Accessibility from n-world propagates boxed formulas
+lemma canon_acc_n {Atom : Type} {wn : NWorld Atom} {w : World Atom}
+    (hrel : canonical_acc Atom (.inl wn) w) (φ : Formula Atom)
+    (hbox : (□φ) ∈ world_to_form_set (.inl wn)) :
+    φ ∈ world_to_form_set w := by
   exact hrel φ hbox
 
-lemma existence_pworld
-    {wp : PWorld α} {φ : ModalFormula α}
-    (hφ : (□φ) ∈ world_to_set (.inr wp)) :
-    ∃ v : World α,
-    canonical_acc α (.inr wp) v ∧ φ ∈ world_to_set v := by
-  -- Extract the MCS from the p-world
-  obtain ⟨⟨Γ, _⟩, hΓ_mcs, _⟩ := wp
-  -- We have □φ ∈ Γ
-  have hbox : (□φ) ∈ Γ := hφ
-  -- Use undia_box_consistent to get an MCS containing all ◇-formulas from Γ plus φ
-  obtain ⟨Δ, hΔ_mcs, hΔ_acc, hΔ_φ⟩ := undia_box_consistent hΓ_mcs hbox
-  -- Make Δ into a world - let's use an n-world
-  let v : World α := .inl ⟨⟨Δ, true⟩, And.intro hΔ_mcs rfl⟩
-  use v
-  constructor
-  · -- Show canonical_acc holds: ∀ ψ, ◇ψ ∈ Γ → ψ ∈ Δ
-    intro ψ hdia
-    exact hΔ_acc ψ hdia
-  · -- Show φ ∈ world_to_set v
-    simp [world_to_set]
-    exact hΔ_φ
-
-lemma mcs_box_of_exists_p
-    {Γ : Multiset (ModalFormula α)}
-    (hΓ : is_maximally_consistent (α := α) Γ)
-    {φ : ModalFormula α}
-    (hex : ∃ v : World α,
-        canonical_acc α (.inr ⟨⟨Γ, false⟩, And.intro hΓ rfl⟩) v ∧
-        φ ∈ world_to_set v) :
+-- If φ satisfied at some accessible world from p-world, then □φ is in the MCS
+lemma mcs_box_of_exists_p {Atom : Type} {Γ : Set (Formula Atom)}
+    (hΓ : (EM.proof_system Atom).is_mcs Γ) {φ : Formula Atom}
+    (hex : ∃ v : World Atom,
+      canonical_acc Atom (.inr ⟨Γ, hΓ⟩) v ∧ φ ∈ world_to_form_set v) :
     (□φ) ∈ Γ := by
-  -- By maximality, either □φ ∈ Γ or ¬□φ ∈ Γ
-  cases mcs_mem_or_neg_mem hΓ (□φ) with
-  | inl hbox => exact hbox
-  | inr hneg_box =>
-    -- If ¬□φ ∈ Γ, we derive a contradiction
-    -- Get the witness world from hypothesis
-    obtain ⟨v, hrel, hφ_mem⟩ := hex
-    -- For p-worlds, canonical_acc means: ∀ ψ, ◇ψ ∈ Γ → ψ ∈ v
-    -- We have ¬□φ ∈ Γ, which is equivalent to ◇(¬φ) ∈ Γ
-    -- Since ◇(¬φ) := ¬□¬¬φ, and by double negation ¬¬φ ↔ φ in MCS
-    -- We get ◇(¬φ) := ¬□φ
-    have hdia_neg : (◇(¬φ)) ∈ Γ := (mcs_neg_box_iff_dia_neg hΓ).mp hneg_box
-    -- By accessibility relation, ¬φ ∈ v
-    have hneg_mem : (¬φ) ∈ world_to_set v := hrel (¬φ) hdia_neg
-    -- But we also have φ ∈ v
-    -- This is a contradiction
-    have hbot : MProof' (α := α) (world_to_set v) ⊥ :=
-      mcs_no_contradiction hφ_mem hneg_mem
-    -- v must be an MCS (either from .inl or .inr)
-    cases v with
-    | inl vn => exact False.elim (vn.property.1.1 hbot)
-    | inr vp => exact False.elim (vp.property.1.1 hbot)
+  admit
+  -- Proof by contradiction using dual of witness construction
 
-lemma mcs_impl_closed
-    {Γ : Multiset (ModalFormula α)}
-    (hΓ : is_maximally_consistent (α := α) Γ)
-    {φ ψ : ModalFormula α} :
-    (φ → ψ) ∈ Γ ↔ (φ ∈ Γ → ψ ∈ Γ) := by
-  admit  -- known result, not dependent on my particular setting
+-- If □φ in p-world MCS, then there exists an accessible world containing φ
+lemma existence_pworld {Atom : Type} {wp : PWorld Atom} {φ : Formula Atom}
+    (hφ : (□φ) ∈ world_to_form_set (.inr wp)) :
+    ∃ v : World Atom,
+      canonical_acc Atom (.inr wp) v ∧ φ ∈ world_to_form_set v := by
+  admit
+  -- Use Lindenbaum to extend {ψ | ◇ψ ∈ Γ} ∪ {φ} to MCS
 
-lemma truth_lemma
-    (w : (CanonicalModel α).frame.world)
-    (φ : ModalFormula α) :
-    world_sat (CanonicalModel α) w φ ↔ φ ∈ world_to_set w := by
+-- Truth lemma: satisfaction in canonical model corresponds to membership in MCS
+-- This is the key lemma (Blackburn et al. Lemma 4.21)
+lemma truth_lemma {Atom : Type} (w : (CanonicalModel Atom).frame.world) (φ : Formula Atom) :
+    Dual.world_sat (CanonicalModel Atom) w φ ↔ φ ∈ world_to_form_set w := by
   induction φ generalizing w with
   | atom a =>
+    -- Atomic formulas: satisfied iff in the world's MCS (by definition of valuation)
     cases w with
     | inl wn => rfl
     | inr wp => rfl
   | bot =>
+    -- Bottom is never in an MCS and never satisfied
     cases w with
     | inl wn =>
-      simp [world_sat, world_to_set]
-      exact mcs_no_bot wn.property.1
+      simp [Dual.world_sat, world_to_form_set]
+      exact mcs_no_bot wn.property
     | inr wp =>
-      simp [world_sat, world_to_set]
-      exact mcs_no_bot wp.property.1
+      simp [Dual.world_sat, world_to_form_set]
+      exact mcs_no_bot wp.property
   | impl φ ψ ih_φ ih_ψ =>
+    -- Implication: use MCS closure under modus ponens
     cases w with
     | inl wn =>
-      simp [world_sat, world_to_set]
+      simp [Dual.world_sat, world_to_form_set]
       rw [ih_φ, ih_ψ]
-      exact (mcs_impl_closed wn.property.1).symm
+      exact (mcs_impl_closed wn.property).symm
     | inr wp =>
-      simp [world_sat, world_to_set]
+      simp [Dual.world_sat, world_to_form_set]
       rw [ih_φ, ih_ψ]
-      exact (mcs_impl_closed wp.property.1).symm
+      exact (mcs_impl_closed wp.property).symm
   | box φ ih_φ =>
+    -- Box: the key modal case
     cases w with
     | inl wn =>
-      simp only [world_sat, world_to_set]
+      -- N-world: □φ satisfied iff φ in all accessible worlds
+      simp only [Dual.world_sat, world_to_form_set]
       constructor
-      · -- mp: world_sat → membership (i.e., ∀ v, rel v → sat v φ → □φ ∈ Γ)
+      · -- Forward: if φ satisfied at all accessible worlds, then □φ ∈ Γ
         intro hall
-        apply mcs_box_of_all wn.property.1
+        apply mcs_box_of_all wn.property
         intro v hrel
-        have hworld := hall v hrel
-        rw [ih_φ v] at hworld
-        exact hworld
-      · -- mpr: membership → world_sat (i.e., (□φ) ∈ Γ → ∀ v, rel v → sat v φ)
+        have hsat := hall v hrel
+        rw [ih_φ v] at hsat
+        exact hsat
+      · -- Backward: if □φ ∈ Γ, then φ satisfied at all accessible worlds
         intro hbox v hrel
         rw [ih_φ v]
         exact canon_acc_n hrel φ hbox
     | inr wp =>
-      simp only [world_sat, world_to_set]
+      -- P-world: □φ satisfied iff φ in some accessible world
+      simp only [Dual.world_sat, world_to_form_set]
       constructor
-      · -- mp: world_sat → membership (i.e., ∃ v, rel v ∧ sat v φ → □φ ∈ Γ)
+      · -- Forward: if φ satisfied at some accessible world, then □φ ∈ Γ
         intro ⟨v, hrel, hsat⟩
-        apply mcs_box_of_exists_p wp.property.1
-        use v
-        constructor
-        · exact hrel
-        · rw [ih_φ v] at hsat
-          exact hsat
-      · -- mpr: membership → world_sat (i.e., (□φ) ∈ Γ → ∃ v, rel v ∧ sat v φ)
+        apply mcs_box_of_exists_p wp.property
+        use v, hrel
+        rw [ih_φ v] at hsat
+        exact hsat
+      · -- Backward: if □φ ∈ Γ, then ∃ accessible world satisfying φ
         intro hbox
         obtain ⟨v, hrel, hφ_mem⟩ := existence_pworld hbox
-        use v
-        constructor
-        · exact hrel
-        · rw [ih_φ v]
-          exact hφ_mem
-  -- Blackburn et al. Lemma 4.21
-  -- Note: dia cases are not needed since ◇φ is defined as ¬□¬φ
+        use v, hrel
+        rw [ih_φ v]
+        exact hφ_mem
 
-lemma deriv_iff_mem_mcs (φ : ModalFormula α) :
-    MProof (α := α) φ ↔ ∀ {Γ : Multiset (ModalFormula α)},
-                          is_maximally_consistent (α := α) Γ → φ ∈ Γ := by
-  admit
-  -- Well-known result for M and other logics.
-  -- See, for example, Chellas, Theorem 2.20 (2).
+-- Completeness with respect to the canonical model
+lemma complete_wrt_canon {Atom : Type} (φ : Formula Atom) :
+    Dual.model_sat (CanonicalModel Atom) φ → (EM.proof_system Atom).entails ∅ φ := by
+  intro hmodel
+  -- Apply deriv_iff_mem_mcs
+  rw [deriv_iff_mem_mcs]
+  intro Γ hΓ
+  -- Construct an n-world from Γ
+  let wn : NWorld Atom := ⟨Γ, hΓ⟩
+  -- φ is satisfied at this world in the canonical model
+  have hsat : Dual.world_sat (CanonicalModel Atom) (.inl wn) φ := hmodel (.inl wn)
+  -- By truth lemma, φ ∈ Γ
+  rw [truth_lemma (.inl wn) φ] at hsat
+  exact hsat
 
-lemma complete_wrt_canon :
-    ∀ (φ : ModalFormula α), model_sat (CanonicalModel α) φ → MProof φ := by
-  intro φ hmodel
-  classical
-  have hmem : ∀ {Γ : Multiset (ModalFormula α)},
-      is_maximally_consistent (α := α) Γ → φ ∈ Γ := by
-    intro Γ hΓ
-    let wn : NWorld α :=
-      ⟨⟨Γ, true⟩, And.intro hΓ rfl⟩
-    have hsat : world_sat (CanonicalModel α) (.inl wn) φ := hmodel _
-    have htruth := (truth_lemma (α := α) (.inl wn) φ).mp hsat
-    simpa using htruth
-  exact (deriv_iff_mem_mcs (α := α) φ).mpr hmem
-  -- analog to Blackburn et al. Theorem 4.22
+-- Canonical model satisfies valid formulas
+lemma valid_implies_canon_sat {Atom : Type} (φ : Formula Atom) :
+    (⊨[Dual.semantics Atom] φ) → Dual.model_sat (CanonicalModel Atom) φ := by
+  intro hvalid
+  -- hvalid : is_sem_conseq sem ∅ φ
+  -- Apply to canonical model with empty context
+  exact hvalid (CanonicalModel Atom) (by simp)
 
-lemma valid_canon_iff_valid (φ : ModalFormula α) :
-    model_sat (CanonicalModel α) φ ↔ Dual.valid φ := by
-  constructor
-  · intro hcanon
-    have hproof : MProof φ := (complete_wrt_canon (α := α) φ) hcanon
-    exact logicM_dual_sound (α := α) φ hproof
-  · intro hvalid
-    have hframe := hvalid (CanonicalModel α).frame
-    have hmodel := hframe (CanonicalModel α).val
-    exact hmodel
-
-theorem logicM_dual_complete :
-    ∀ (φ : ModalFormula α), Dual.valid φ → MProof φ := by
-    intro φ hvalid
-    have hmodel : model_sat (CanonicalModel α) φ :=
-      (valid_canon_iff_valid (α := α) φ).mpr hvalid
-    exact complete_wrt_canon (α := α) φ hmodel
-
--/
-
-theorem is_complete (Atom : Type) :
-    Logic.is_complete_strong (EM.proof_system Atom) (Dual.semantics Atom) :=
-  sorry
+theorem is_complete_weak (Atom : Type) :
+  Logic.is_complete_weak (EM.proof_system Atom) (Dual.semantics Atom) := by
+  intro φ hvalid
+  -- Valid formulas are satisfied in the canonical model
+  have hcanon : Dual.model_sat (CanonicalModel Atom) φ :=
+    valid_implies_canon_sat φ hvalid
+  -- Formulas satisfied in canonical model are derivable
+  exact complete_wrt_canon φ hcanon
 
 end completeness
 
