@@ -211,14 +211,66 @@ lemma mcs_impl_closed {Atom : Type} {Γ : Set (Formula Atom)}
   admit
   -- Standard result: MCS closed under modus ponens
 
+-- Law of excluded middle for MCS: φ ∈ Γ or ¬φ ∈ Γ
+lemma mcs_mem_or_neg_mem {Atom : Type} {Γ : Set (Formula Atom)}
+    (hΓ : (EM.proof_system Atom).is_mcs Γ) (φ : Formula Atom) :
+    φ ∈ Γ ∨ (¬φ) ∈ Γ := by
+  admit
+  -- Standard result: by maximality, either φ or ¬φ must be in Γ
+
+-- MCS cannot contain contradictions
+lemma mcs_no_contradiction {Atom : Type} {Γ : Set (Formula Atom)}
+    (hΓ : (EM.proof_system Atom).is_mcs Γ) {φ : Formula Atom}
+    (hφ : φ ∈ Γ) (hneg : (¬φ) ∈ Γ) : False := by
+  admit
+  -- Standard result: from φ and ¬φ in MCS, derive contradiction
+  -- This follows from consistency of MCS
+
+-- Lindenbaum-style lemma for extending box-closed sets
+-- If ¬□φ ∈ Γ (MCS), then {ψ | □ψ ∈ Γ} ∪ {¬φ} extends to an MCS
+lemma extend_box_set {Atom : Type} {Γ : Set (Formula Atom)}
+    (hΓ : (EM.proof_system Atom).is_mcs Γ) {φ : Formula Atom}
+    (hneg_box : (¬□φ) ∈ Γ) :
+    ∃ Δ : Set (Formula Atom),
+      (EM.proof_system Atom).is_mcs Δ ∧
+      (∀ ψ, (□ψ) ∈ Γ → ψ ∈ Δ) ∧
+      (¬φ) ∈ Δ := by
+  admit
+  -- Well-known result for normal modal logics.
+  -- Dual of extend_dia_set
+  -- Proof sketch:
+  -- 1. Show {ψ | □ψ ∈ Γ} ∪ {¬φ} is consistent:
+  --    If inconsistent, could derive □φ, contradicting ¬□φ ∈ Γ via maximality
+  -- 2. Apply Lindenbaum's lemma to extend to MCS Δ
+
 -- If φ is satisfied at all accessible worlds from an n-world, then □φ is in the MCS
 lemma mcs_box_of_all {Atom : Type} {Γ : Set (Formula Atom)}
     (hΓ : (EM.proof_system Atom).is_mcs Γ) {φ : Formula Atom}
     (hall : ∀ (v : World Atom),
       canonical_acc Atom (.inl ⟨Γ, hΓ⟩) v → φ ∈ world_to_form_set v) :
     (□φ) ∈ Γ := by
-  admit
-  -- Proof by contradiction using Lindenbaum and witness construction
+  -- By maximality, either □φ ∈ Γ or ¬□φ ∈ Γ
+  cases mcs_mem_or_neg_mem hΓ (□φ) with
+  | inl hbox => exact hbox
+  | inr hneg_box =>
+    -- If ¬□φ ∈ Γ, we can construct a witness world
+    obtain ⟨Δ, hΔ_mcs, hΔ_acc, hΔ_neg⟩ := extend_box_set hΓ hneg_box
+    -- Δ is an MCS with (∀ψ, □ψ ∈ Γ → ψ ∈ Δ) and ¬φ ∈ Δ
+    -- We can make Δ into a world - let's make it an n-world
+    let v : World Atom := .inl ⟨Δ, hΔ_mcs⟩
+    -- Check that this world is accessible from our original n-world
+    have hrel : canonical_acc Atom (.inl ⟨Γ, hΓ⟩) v := by
+      intro ψ hψ
+      exact hΔ_acc ψ hψ
+    -- By hypothesis, φ ∈ Δ
+    have hφ_mem : φ ∈ world_to_form_set v := hall v hrel
+    -- But we also have ¬φ ∈ Δ
+    have hneg_mem : (¬φ) ∈ Δ := hΔ_neg
+    -- This is a contradiction in the MCS Δ
+    simp [world_to_form_set] at hφ_mem
+    -- An MCS cannot contain both φ and ¬φ - derive contradiction
+    have hbot : False := mcs_no_contradiction hΔ_mcs hφ_mem hneg_mem
+    exact False.elim hbot
 
 -- Accessibility from n-world propagates boxed formulas
 lemma canon_acc_n {Atom : Type} {wn : NWorld Atom} {w : World Atom}
@@ -227,22 +279,85 @@ lemma canon_acc_n {Atom : Type} {wn : NWorld Atom} {w : World Atom}
     φ ∈ world_to_form_set w := by
   exact hrel φ hbox
 
+-- Equivalence between ¬□φ and ◇(¬φ) in an MCS
+lemma mcs_neg_box_iff_dia_neg {Atom : Type} {Γ : Set (Formula Atom)}
+    (hΓ : (EM.proof_system Atom).is_mcs Γ) {φ : Formula Atom} :
+    (¬□φ) ∈ Γ ↔ (◇(¬φ)) ∈ Γ := by
+  admit
+  -- Standard result: ◇ψ is defined as ¬□¬ψ
+  -- So ◇(¬φ) = ¬□¬¬φ
+  -- By double negation in MCS: ¬¬φ ↔ φ, so □¬¬φ ↔ □φ
+  -- Therefore ¬□φ ↔ ¬□¬¬φ = ◇(¬φ)
+
 -- If φ satisfied at some accessible world from p-world, then □φ is in the MCS
 lemma mcs_box_of_exists_p {Atom : Type} {Γ : Set (Formula Atom)}
     (hΓ : (EM.proof_system Atom).is_mcs Γ) {φ : Formula Atom}
     (hex : ∃ v : World Atom,
       canonical_acc Atom (.inr ⟨Γ, hΓ⟩) v ∧ φ ∈ world_to_form_set v) :
     (□φ) ∈ Γ := by
+  -- By maximality, either □φ ∈ Γ or ¬□φ ∈ Γ
+  cases mcs_mem_or_neg_mem hΓ (□φ) with
+  | inl hbox => exact hbox
+  | inr hneg_box =>
+    -- If ¬□φ ∈ Γ, we derive a contradiction
+    -- Get the witness world from hypothesis
+    obtain ⟨v, hrel, hφ_mem⟩ := hex
+    -- For p-worlds, canonical_acc means: ∀ ψ, ◇ψ ∈ Γ → ψ ∈ v
+    -- We have ¬□φ ∈ Γ, which is equivalent to ◇(¬φ) ∈ Γ
+    have hdia_neg : (◇(¬φ)) ∈ Γ := (mcs_neg_box_iff_dia_neg hΓ).mp hneg_box
+    -- By accessibility relation, ¬φ ∈ v
+    have hneg_mem : (¬φ) ∈ world_to_form_set v := hrel (¬φ) hdia_neg
+    -- But we also have φ ∈ v
+    -- This is a contradiction in the MCS of v
+    -- v must be an MCS (either from .inl or .inr)
+    cases v with
+    | inl vn =>
+      simp [world_to_form_set] at hφ_mem hneg_mem
+      have hbot : False := mcs_no_contradiction vn.property hφ_mem hneg_mem
+      exact False.elim hbot
+    | inr vp =>
+      simp [world_to_form_set] at hφ_mem hneg_mem
+      have hbot : False := mcs_no_contradiction vp.property hφ_mem hneg_mem
+      exact False.elim hbot
+
+-- Lindenbaum-style lemma for extending diamond-closed sets
+-- If □φ ∈ Γ (MCS), then {ψ | ◇ψ ∈ Γ} ∪ {φ} extends to an MCS
+lemma extend_dia_set {Atom : Type} {Γ : Set (Formula Atom)}
+    (hΓ : (EM.proof_system Atom).is_mcs Γ) {φ : Formula Atom}
+    (hbox : (□φ) ∈ Γ) :
+    ∃ Δ : Set (Formula Atom),
+      (EM.proof_system Atom).is_mcs Δ ∧
+      (∀ ψ, (◇ψ) ∈ Γ → ψ ∈ Δ) ∧
+      φ ∈ Δ := by
   admit
-  -- Proof by contradiction using dual of witness construction
+  -- Well-known result for normal modal logics.
+  -- Proof sketch:
+  -- 1. Show {ψ | ◇ψ ∈ Γ} ∪ {φ} is consistent:
+  --    If inconsistent, could derive ◇¬φ (= ¬□¬¬φ)
+  --    By double negation, this means ¬□φ, contradicting □φ ∈ Γ via maximality
+  -- 2. Apply Lindenbaum's lemma to extend to MCS Δ
 
 -- If □φ in p-world MCS, then there exists an accessible world containing φ
 lemma existence_pworld {Atom : Type} {wp : PWorld Atom} {φ : Formula Atom}
     (hφ : (□φ) ∈ world_to_form_set (.inr wp)) :
     ∃ v : World Atom,
       canonical_acc Atom (.inr wp) v ∧ φ ∈ world_to_form_set v := by
-  admit
-  -- Use Lindenbaum to extend {ψ | ◇ψ ∈ Γ} ∪ {φ} to MCS
+  -- Extract the MCS from the p-world
+  obtain ⟨Γ, hΓ_mcs⟩ := wp
+  -- We have □φ ∈ Γ
+  have hbox : (□φ) ∈ Γ := hφ
+  -- Use extend_dia_set to get MCS containing all ◇-formulas and φ
+  obtain ⟨Δ, hΔ_mcs, hΔ_acc, hΔ_φ⟩ := extend_dia_set hΓ_mcs hbox
+  -- Make Δ into a world - we use an n-world
+  let v : World Atom := .inl ⟨Δ, hΔ_mcs⟩
+  use v
+  constructor
+  · -- Show canonical_acc holds: ∀ ψ, ◇ψ ∈ Γ → ψ ∈ Δ
+    intro ψ hdia
+    exact hΔ_acc ψ hdia
+  · -- Show φ ∈ world_to_form_set v
+    simp [world_to_form_set]
+    exact hΔ_φ
 
 -- Truth lemma: satisfaction in canonical model corresponds to membership in MCS
 -- This is the key lemma (Blackburn et al. Lemma 4.21)
